@@ -35,8 +35,7 @@ export const uploadModule =  async (req, res) => {
 
 //updateModule
 export const updateModule= async (req, res) => {
-    const moduleId = req.params.id;
-    
+    const moduleId = req.params.id; 
     try {
         // Find the module by ID
         const existingModule = await Module.findById(moduleId);
@@ -57,8 +56,7 @@ export const updateModule= async (req, res) => {
             updatedModule
         });
     } catch (error) {
-        
-        res.status(500).json({ message: 'Internal Server Error' });
+        res.status(500).json({ error: `${error}` });
     }
 };
 
@@ -161,7 +159,6 @@ export const updateAcoount = async (req, res) => {
 };
 
 
-
 // Function to extract public ID from Cloudinary URL
 const extractPublicIdFromUrl = (url) => {
     const matches = url.match(/\/upload\/v\d+\/(.+?)\./);
@@ -172,7 +169,6 @@ const extractPublicIdFromUrl = (url) => {
 
     return null;
 };
-
 
 
 export const uploadAcccordian =  async (req, res) => {
@@ -222,7 +218,7 @@ export const updateAccordian = async (req, res) => {
         res.json(updatedAccordion);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Internal Server Error' });
+        res.status(500).json({error:`${error}` });
     }
 };
 
