@@ -13,6 +13,7 @@ const bannerSchema = new mongoose.Schema({
 
   imageUrls: {
       type: [String], 
+      required: true,
       default: []     //for default vale
   },
 });

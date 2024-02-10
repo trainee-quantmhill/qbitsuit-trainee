@@ -10,12 +10,14 @@ export const uploadHrm = async (req, res) => {
 
         // Access the uploaded file using req.file
         const file = req.file;
-
+        const { hrmHeading, hrmSubheading } = req.body;
         // Check if file is present
         if (!file) {
-            return res.status(400).json({ error: 'No file provided' });
+            return res.status(400).json({ error: 'All fields are required' });
         }
-
+        if (!hrmHeading || !hrmSubheading) {
+            return res.status(400).json({ error: 'All fields are required' });
+        }
         // Upload the file to Cloudinary using upload_stream
         cloudinary.uploader.upload_stream({ resource_type: 'auto' }, async (err, result) => {
             if (err) {
@@ -23,8 +25,8 @@ export const uploadHrm = async (req, res) => {
             }
 
             const newHrm = new Hrm1({
-                hrmHeading: req.body.hrmHeading,
-                hrmSubheading: req.body.hrmSubheading,
+                hrmHeading,
+                hrmSubheading,
                 hrmUrl: result.url
             });
 
@@ -41,6 +43,7 @@ export const uploadHrm = async (req, res) => {
         res.status(500).json({ error: `Error handling file upload: ${error.message}` });
     }
 };
+
 //Hrm  update
 export const updateHrm = async (req, res) => {
     try {
@@ -108,6 +111,67 @@ const extractPublicIdFromUrl = (url) => {
 };
 
 
+//get hrm1
+export const getHrm1 = async (req, res) => {
+    try {
+        console.log(req.params.hrmHeading);
+
+        // Find the document based on the hrmHeading
+        const foundHrm1 = await Hrm1.findOne({ hrmHeading: req.params.hrmHeading });
+
+        // Check if the document is found
+        if (!foundHrm1) {
+            return res.status(404).json({ message: 'Hrm1 content not found' });
+        }
+
+        // Respond with the found document
+        res.json(foundHrm1);
+    } catch (error) {
+        console.error('Error fetching Hrm1 content:', error);
+        res.status(500).json({ error: `Error fetching Hrm1 content: ${error.message}` });
+    }
+};
+
+//delete hrm1
+
+export const deleteHrm1 = async (req, res) => {
+    try {
+
+        // Find the document based on the accountHeading
+        const existingHrm1Object = await Hrm1.findOne({ hrmHeading: req.params.hrmHeading });
+
+        if (!existingHrm1Object) {
+            return res.status(404).json({ success: false, message: 'Account not found.' });
+        }
+
+        const hrmUrl = existingHrm1Object.hrmUrl;
+
+        // Extract the public ID from the Cloudinary URL
+        const publicId = extractPublicIdFromUrl(hrmUrl);
+        if (!publicId) {
+            return res.status(400).json({ error: 'Invalid Cloudinary URL' });
+        }
+
+        // Delete the image from Cloudinary using its public ID
+        await cloudinary.uploader.destroy(publicId);
+
+        // Find and delete the document based on the hrmHeading
+        const deletedHrm1 = await Hrm1.findOneAndDelete({hrmHeading: req.params.hrmHeading });
+
+        // Check if the document is found and deleted
+        if (!deletedHrm1) {
+            return res.status(404).json({ message: 'HRM1 not found for deletion' });
+        }
+
+        // Respond with a success message
+        res.json({ message: 'HRM1 deleted successfully', deletedHrm1 });
+    } catch (error) {
+        console.error('Error deleting HRM1:', error);
+        res.status(500).json({ error: `Error deleting HRM1: ${error.message}` });
+    }
+};
+
+
 //upload HrmAccord
 export const uploadHrmAccord =  async (req, res) => {
     try {
@@ -161,3 +225,45 @@ export const updateHrmAccord = async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
+
+//get hrm1 Accordian
+export const getHrm1Accordian = async (req, res) => {
+    try {
+        console.log(req.params.accordian_1Heading);
+
+        // Find the document based on the accordian_1Heading
+        const foundHrmAccordian = await HrmAccordian.findOne({ accordian_1Heading: req.params.accordian_1Heading });
+
+        // Check if the document is found
+        if (!foundHrmAccordian) {
+            return res.status(404).json({ message: 'HrmAccordian content not found' });
+        }
+
+        // Respond with the found document
+        res.json(foundHrmAccordian);
+    } catch (error) {
+        console.error('Error fetching HrmAccordian content:', error);
+        res.status(500).json({ error: `Error fetching HrmAccordian content: ${error.message}` });
+    }
+};
+
+//delete hrm1 accordian
+
+export const deleteHrm1Accordian = async (req, res) => {
+    try {
+        // Find and delete the document based on the accordian_1Heading
+        const deletedHrmAccordian = await HrmAccordian.findOneAndDelete({accordian_1Heading: req.params.accordian_1Heading });
+
+        // Check if the document is found and deleted
+        if (!deletedHrmAccordian) {
+            return res.status(404).json({ message: 'HRM Accordian not found for deletion' });
+        }
+
+        // Respond with a success message
+        res.json({ message: 'HRM Accordian deleted successfully', deletedHrmAccordian });
+    } catch (error) {
+        console.error('Error deleting HRM Accordian:', error);
+        res.status(500).json({ error: `Error deleting HRM Accordian: ${error.message}` });
+    }
+};
+

@@ -9,9 +9,8 @@ import {Built,Cards} from '../model/builtTechModel.js';
 
 
 //uploadBuiltTech
-export const uploadBuilt =  async (req, res) => {
+export const uploadBuiltTech =  async (req, res) => {
     try {
-        console.log(req.body);
         const { builtHeading, builtSubheading } = req.body;
 
         // Check if required fields are present
@@ -62,18 +61,63 @@ export const updateBuiltTech= async (req, res) => {
 };
 
 
+//get builtTech
+export const getBuiltTech = async (req, res) => {
+    try {
+        console.log(req.params.builtHeading);
+
+        // Find the document based on the builtHeading
+        const foundBuilt = await Built.findOne({ builtHeading: req.params.builtHeading });
+
+        // Check if the document is found
+        if (!foundBuilt) {
+            return res.status(404).json({ message: 'Built content not found' });
+        }
+
+        // Respond with the found document
+        res.json(foundBuilt);
+    } catch (error) {
+        console.error('Error fetching built content:', error);
+        res.status(500).json({ error: `Error fetching built content: ${error.message}` });
+    }
+};
+
+//delete
+export const deleteBuiltTech = async (req, res) => {
+    try {
+        console.log(req.params.builtHeading);
+
+        // Find and delete the document based on the builtHeading
+        const deletedBuilt = await Built.findOneAndDelete({ builtHeading: req.params.builtHeading });
+
+        // Check if the document is found and deleted
+        if (!deletedBuilt) {
+            return res.status(404).json({ message: 'Built content not found for deletion' });
+        }
+
+        // Respond with a success message
+        res.json({ message: 'Built content deleted successfully', deletedBuilt });
+    } catch (error) {
+        console.error('Error deleting built content:', error);
+        res.status(500).json({ error: `Error deleting built content: ${error.message}` });
+    }
+};
+
 //upload cards
 export const uploadBuiltTechCards = async (req, res) => {
     try {
 
         // Access the uploaded file using req.file
         const file = req.file;
-
+        const {cardheading,cardParagraph}=req.body;
         // Check if file is present
         if (!file) {
-            return res.status(400).json({ error: 'No file provided' });
+            return res.status(400).json({ error: 'All fields are required' });
         }
 
+        if (!cardheading ||  !cardParagraph) {
+            return res.status(400).json({ error: 'All fields are required' });
+        }
         // Upload the file to Cloudinary using upload_stream
         cloudinary.uploader.upload_stream({ resource_type: 'auto' }, async (err, result) => {
             if (err) {
@@ -81,8 +125,8 @@ export const uploadBuiltTechCards = async (req, res) => {
             }
 
             const newCard = new Cards({
-                cardheading: req.body.cardheading,
-                cardParagraph: req.body.cardParagraph,
+                cardheading,
+                cardParagraph,
                 cardUrl: result.url
             });
 
@@ -166,7 +210,6 @@ export const updateBuiltTechCards = async (req, res) => {
 };
 
 
-
 // Function to extract public ID from Cloudinary URL
 const extractPublicIdFromUrl = (url) => {
     const matches = url.match(/\/upload\/v\d+\/(.+?)\./);
@@ -176,4 +219,62 @@ const extractPublicIdFromUrl = (url) => {
     }
 
     return null;
+};
+
+
+//get builtTech Cards
+export const getBuiltTechCards= async (req, res) => {
+    try {
+        console.log(req.params.cardHeading);
+
+        // Find the document based on the cardHeading
+        const foundCard = await Cards.findOne({ cardHeading: req.params.cardHeading });
+
+        // Check if the document is found
+        if (!foundCard) {
+            return res.status(404).json({ message: 'Card not found' });
+        }
+
+        // Respond with the found document
+        res.json(foundCard);
+    } catch (error) {
+        console.error('Error fetching card:', error);
+        res.status(500).json({ error: `Error fetching card: ${error.message}` });
+    }
+};
+
+
+export const deleteBuiltTechCards = async (req, res) => {
+    try {
+        const existingCardObject = await Cards.findOne({ cardheading: req.params.cardheading });
+        console.log("existingCardObject:", existingCardObject);
+
+        if (!existingCardObject) {
+            return res.status(404).json({ success: false, message: 'Card not found.' });
+        }
+
+        const cardUrl = existingCardObject.cardUrl;
+
+        // Extract the public ID from the Cloudinary URL
+        const publicId = extractPublicIdFromUrl(cardUrl);
+        if (!publicId) {
+            return res.status(400).json({ error: 'Invalid Cloudinary URL' });
+        }
+
+        // Delete the image from Cloudinary using its public ID
+        await cloudinary.uploader.destroy(publicId);
+
+        const deletedCard = await Cards.findOneAndDelete({ cardheading: req.params.cardheading }); // Use cardheading here
+
+        // Check if the document is found and deleted
+        if (!deletedCard) {
+            return res.status(404).json({ message: 'Card not found for deletion' });
+        }
+
+        // Respond with a success message
+        res.json({ message: 'Card deleted successfully', deletedCard });
+    } catch (error) {
+        console.error('Error deleting card:', error);
+        res.status(500).json({ error: `Error deleting card: ${error.message}` });
+    }
 };

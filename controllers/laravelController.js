@@ -6,12 +6,15 @@ import Laravel from "../model/laravelModel.js";
 export const uploadLaravel = async (req, res) => {
     try {
         const file = req.file;
-
+        const { laravelHeading, laravelSubheading } = req.body;
         // Check if file is exit
         if (!file) {
-            return res.status(400).json({ error: 'No file provided' });
+            return res.status(400).json({ error: 'All fields are required' });
         }
-
+        if (!laravelHeading || !laravelSubheading) {
+            return res.status(400).json({ error: 'All fields are required' });
+        }
+        
         // Upload the file to Cloudinary using upload_stream
         cloudinary.uploader.upload_stream({ resource_type: 'auto' }, async (err, result) => {
             if (err) {
@@ -19,8 +22,8 @@ export const uploadLaravel = async (req, res) => {
             }
 
             const newImage = new Laravel({
-                laravelHeading: req.body.laravelHeading,
-                laravelSubheading: req.body.laravelSubheading,
+                laravelHeading,
+                laravelSubheading,
                 laravelUrl: result.url
             });
 
@@ -101,4 +104,65 @@ const extractPublicIdFromUrl = (url) => {
         return matches[1];
     }
     return null;
+};
+
+//get laravel
+export const getLaravel = async (req, res) => {
+    try {
+        console.log(req.params.laravelHeading);
+
+        // Find the document based on the laravelHeading
+        const foundLaravel = await Laravel.findOne({ laravelHeading: req.params.laravelHeading });
+
+        // Check if the document is found
+        if (!foundLaravel) {
+            return res.status(404).json({ message: 'Laravel content not found' });
+        }
+
+        // Respond with the found document
+        res.json(foundLaravel);
+    } catch (error) {
+        console.error('Error fetching Laravel content:', error);
+        res.status(500).json({ error: `Error fetching Laravel content: ${error.message}` });
+    }
+};
+
+//delete laravel
+
+export const deleteLaravel = async (req, res) => {
+    try {
+
+        // Find the document based on the accountHeading
+        const existingLaravelObject = await Laravel.findOne({ laravelHeading: req.params.laravelHeading });
+
+        if (!existingLaravelObject) {
+            return res.status(404).json({ success: false, message: 'Account not found.' });
+        }
+
+        const laravelUrl = existingLaravelObject.laravelUrl;
+
+        // Extract the public ID from the Cloudinary URL
+        const publicId = extractPublicIdFromUrl(laravelUrl);
+        if (!publicId) {
+            return res.status(400).json({ error: 'Invalid Cloudinary URL' });
+        }
+
+        // Delete the image from Cloudinary using its public ID
+        await cloudinary.uploader.destroy(publicId);
+
+
+        // Find and delete the document based on the laravelHeading
+        const deletedLaravel = await Laravel.findOneAndDelete({ laravelHeading: req.params.laravelHeading });
+
+        // Check if the document is found and deleted
+        if (!deletedLaravel) {
+            return res.status(404).json({ message: 'Laravel not found for deletion' });
+        }
+
+        // Respond with a success message
+        res.json({ message: 'Laravel deleted successfully', deletedLaravel });
+    } catch (error) {
+        console.error('Error deleting Laravel:', error);
+        res.status(500).json({ error: `Error deleting Laravel: ${error.message}` });
+    }
 };

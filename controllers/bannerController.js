@@ -9,10 +9,13 @@ import Banner from '../model/bannerModel.js';
 //upload Details
 export const uploadDetails = async (req, res) => {
     try {
-        console.log("details");
+        
         const { bannerHeading, bannerParagraph } = req.body;
         const imageBuffers = req.files || [];
         
+        if (!bannerHeading || !bannerParagraph || imageBuffers.length <2) {
+            return res.status(400).json({ error: 'All fields are required' });
+        }
         // Find existing banner by bannerHeading
         let existingBanner = await Banner.findOne({ bannerHeading });
 
@@ -143,7 +146,6 @@ export const updateBanner = async (req, res) => {
 };
 
 
-
 // Function to extract public ID from Cloudinary URL
 const extractPublicIdFromUrl = (url) => {
     const matches = url.match(/\/upload\/v\d+\/(.+?)\./);
@@ -156,4 +158,65 @@ const extractPublicIdFromUrl = (url) => {
 };
 
 
+//get Banner
+export const getBanner = async (req, res) => {
+    try {
+        console.log(req.params.bannerHeading);
+      
+        // Find the banner based on the bannerHeading
+        const foundBanner = await Banner.findOne({ bannerHeading: req.params.bannerHeading });
+  
+        // Check if the banner is found
+        if (!foundBanner) {
+            return res.status(404).json({ message: 'Banner not found' });
+        }
+  
+        // Respond with the found banner
+        res.json(foundBanner);
+    } catch (error) {
+        console.error('Error fetching banner:', error);
+        res.status(500).json({ error: `Error fetching banner: ${error.message}` });
+    }
+};
 
+//delete banner
+
+export const deleteBanner = async (req, res) => {
+    try {
+        console.log(req.params.bannerHeading);
+
+        const existBannerObject = await Banner.findOne({ bannerHeading: req.params.bannerHeading });
+
+        // Check if existBannerObject exists
+        if (!existBannerObject) {
+            return res.status(404).json({ success: false, message: 'Banner not found.' });
+        }
+
+        // Check if imageUrls exists and has length
+        if (existBannerObject.imageUrls && existBannerObject.imageUrls.length !== 0) {
+            // Delete the existing image or urls
+            for (let i = 0; i < existBannerObject.imageUrls.length; i++) {
+                const url = existBannerObject.imageUrls[i];
+                const publicId = extractPublicIdFromUrl(url);
+                if (!publicId) {
+                    return res.status(400).json({ error: 'Invalid Cloudinary URL' });
+                }
+                await cloudinary.uploader.destroy(publicId);
+            }
+        }
+
+        // Find and delete the document based on the bannerHeading
+        const deletedBanner = await Banner.findOneAndDelete({ bannerHeading: req.params.bannerHeading });
+
+        // Check if the document is found and deleted
+        if (!deletedBanner) {
+            return res.status(404).json({ message: 'Banner not found for deletion' });
+        }
+
+        // Respond with a success message
+        res.json({ message: 'Banner deleted successfully', deletedBanner });
+    } catch (error) {
+        console.error('Error deleting banner:', error);
+        res.status(500).json({ error: `Error deleting banner: ${error.message}` });
+    }
+};

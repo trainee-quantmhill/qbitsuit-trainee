@@ -75,11 +75,18 @@ export const uploadCollabs = async (req, res) => {
         // Access the uploaded file using req.file
         const file = req.file;
         console.log("file::",file);
+        console.log(req.body);
+
+        const {collabHeading,collabParagraph,collabSubheading,checkPointHeading,checkPointParagraph}=req.body
+
         // Check if file is present
         if (!file) {
-            return res.status(400).json({ error: 'No file provided' });
+            return res.status(400).json({ error: 'All fields are required' });
         }
 
+        if (!collabHeading || !collabParagraph || !collabSubheading  || !checkPointHeading || !checkPointParagraph ) {
+            return res.status(400).json({ error: 'All fields are required' });
+        }
         // Upload the file to Cloudinary using upload_stream
         cloudinary.uploader.upload_stream({ resource_type: 'auto' }, async (err, result) => {
             if (err) {
@@ -88,11 +95,11 @@ export const uploadCollabs = async (req, res) => {
             }
 
             const newImage = new Collabs({
-                collabHeading: req.body.collabHeading,
-                collabParagraph: req.body.collabParagraph,
-                collabSubheading: req.body.collabSubheading,
-                checkPointHeading: req.body.checkPointHeading,
-                checkPointParagraph: req.body.checkPointParagraph,
+                collabHeading,
+                collabParagraph,
+                collabSubheading,
+                checkPointHeading,
+                checkPointParagraph,
                 checkPointUrl: result.url
             });
 
@@ -121,3 +128,62 @@ const extractPublicIdFromUrl = (url) => {
 
     return null;
 };
+
+//get collabe
+export const getCollab = async (req, res) => {
+    try {
+        console.log(req.params.collabHeading);
+
+        // Find the document based on the collabHeading
+        const foundCollab = await Collabs.findOne({ collabHeading: req.params.collabHeading });
+
+        // Check if the document is found
+        if (!foundCollab) {
+            return res.status(404).json({ message: 'Collaboration not found' });
+        }
+
+        // Respond with the found document
+        res.json(foundCollab);
+    } catch (error) {
+        console.error('Error fetching collaboration:', error);
+        res.status(500).json({ error: `Error fetching collaboration: ${error.message}` });
+    }
+};
+
+//delete-collab
+export const deleteCollab = async (req, res) => {
+    try {
+        // Find the document based on the accountHeading
+        const existingCollabObject = await Collabs.findOne({ collabHeading: req.params.collabHeading });
+
+        if (!existingCollabObject) {
+            return res.status(404).json({ success: false, message: 'Account not found.' });
+        }
+
+        const checkImageUrl = existingCollabObject.checkPointUrl;
+
+        // Extract the public ID from the Cloudinary URL
+        const publicId = extractPublicIdFromUrl(checkImageUrl);
+        if (!publicId) {
+            return res.status(400).json({ error: 'Invalid Cloudinary URL' });
+        }
+
+        // Delete the image from Cloudinary using its public ID
+        await cloudinary.uploader.destroy(publicId);
+
+        // Find and delete the document based on the collabHeading
+        const deletedCollab = await Collabs.findOneAndDelete({ collabHeading: req.params.collabHeading });
+
+        // Check if the document is found and deleted
+        if (!deletedCollab) {
+            return res.status(404).json({ message: 'Collab not found for deletion' });
+        }
+
+        // Respond with a success message
+        res.json({ message: 'Collab deleted successfully', deletedCollab });
+    } catch (error) {
+        console.error('Error deleting collab:', error);
+        res.status(500).json({ error: `Error deleting collab: ${error.message}` });
+    }
+};
+

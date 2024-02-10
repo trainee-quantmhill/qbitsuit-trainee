@@ -2,7 +2,7 @@ import multer from 'multer';
 
 // Set up Multer for handling file uploads
 
-
+console.log("multer");
 const storage = multer.memoryStorage();
 export const Update =multer({
     storage: storage,

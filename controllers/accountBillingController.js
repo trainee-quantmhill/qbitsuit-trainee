@@ -33,6 +33,29 @@ export const uploadModule =  async (req, res) => {
     }
 };
 
+
+//get module
+export const getModule = async (req, res) => {
+    try {
+      console.log(req.params.moduleHeading);
+  
+      // Find the module based on the moduleHeading
+      const foundModule = await Module.findOne({ moduleHeading: req.params.moduleHeading });
+  
+      // Check if the module is found
+      if (!foundModule) {
+        return res.status(404).json({ message: 'Module not found' });
+      }
+  
+      // Respond with the found module
+      res.json(foundModule);
+    } catch (error) {
+      console.error('Error fetching module:', error);
+      res.status(500).json({ error: `Error fetching module: ${error.message}` });
+    }
+  };
+  
+
 //updateModule
 export const updateModule= async (req, res) => {
     const moduleId = req.params.id; 
@@ -60,17 +83,46 @@ export const updateModule= async (req, res) => {
     }
 };
 
+//deleteModule
+
+export const deleteModule = async (req, res) => {
+    try {
+        console.log(req.params.moduleHeading);
+
+        // Find and delete the document based on the moduleHeading
+        const deletedModule = await Module.findOneAndDelete({ moduleHeading: req.params.moduleHeading });
+
+        // Check if the document is found and deleted
+        if (!deletedModule) {
+            return res.status(404).json({ message: 'Module not found for deletion' });
+        }
+
+        // Respond with a success message
+        res.json({ message: 'Module deleted successfully', deletedModule });
+    } catch (error) {
+        console.error('Error deleting module:', error);
+        res.status(500).json({ error: `Error deleting module: ${error.message}` });
+    }
+};
+
+
+
 //uploadAccount
 export const uploadAccount = async (req, res) => {
     try {
         // Access the uploaded file using req.file
         const file = req.file;
         console.log("file:",file);
+
+        const {accountHeading,accountSubheading}=req.body;
         // Check if file is present
         if (!file) {
-            return res.status(400).json({ error: 'No file provided' });
+            return res.status(400).json({ error: 'All fields are required' });
         }
 
+        if (!accountHeading || !accountSubheading) {
+            return res.status(400).json({ error: 'All fields are required' });
+        }
         // Upload the file to Cloudinary using upload_stream
         cloudinary.uploader.upload_stream({ resource_type: 'auto' }, async (err, result) => {
             if (err) {
@@ -79,8 +131,8 @@ export const uploadAccount = async (req, res) => {
             }
 
             const newAccount = new Account({
-                accountHeading: req.body.accountHeading,
-                accountSubheading: req.body.accountSubheading,
+                accountHeading,
+                accountSubheading,
                 accountImageUrl: result.url
             });
 
@@ -158,6 +210,25 @@ export const updateAcoount = async (req, res) => {
     }
 };
 
+//get account
+export const getAccount = async (req, res) => {
+    try {
+        console.log(req.params.accountHeading);
+      // Find the account based on the accountHeading
+      const foundAccount = await Account.findOne({accountHeading: req.params.accountHeading });
+  
+      // Check if the account is found
+      if (!foundAccount) {
+        return res.status(404).json({ message: 'Account not found' });
+      }
+  
+      // Respond with the found account
+      res.json(foundAccount);
+    } catch (error) {
+      console.error('Error fetching account:', error);
+      res.status(500).json({ error: `Error fetching account: ${error.message}` });
+    }
+  };
 
 // Function to extract public ID from Cloudinary URL
 const extractPublicIdFromUrl = (url) => {
@@ -170,7 +241,47 @@ const extractPublicIdFromUrl = (url) => {
     return null;
 };
 
+//delete account
+export const deleteAccount = async (req, res) => {
+    try {
+        console.log(req.params.accountHeading);
 
+        // Find the document based on the accountHeading
+        const existingAccountObject = await Account.findOne({ accountHeading: req.params.accountHeading });
+
+        if (!existingAccountObject) {
+            return res.status(404).json({ success: false, message: 'Account not found.' });
+        }
+
+        const accountImageUrl = existingAccountObject.accountImageUrl;
+
+        // Extract the public ID from the Cloudinary URL
+        const publicId = extractPublicIdFromUrl(accountImageUrl);
+        console.log("public id :",publicId);
+        if (!publicId) {
+            return res.status(400).json({ error: 'Invalid Cloudinary URL' });
+        }
+
+        // Delete the image from Cloudinary using its public ID
+        await cloudinary.uploader.destroy(publicId);
+
+        // Find and delete the document based on the accountHeading
+        const deletedAccount = await Account.findOneAndDelete({ accountHeading: req.params.accountHeading });
+
+        // Check if the document is found and deleted
+        if (!deletedAccount) {
+            return res.status(404).json({ message: 'Account not found for deletion' });
+        }
+
+        // Respond with a success message
+        res.json({ message: 'Account deleted successfully', deletedAccount });
+    } catch (error) {
+        console.error('Error deleting account:', error);
+        res.status(500).json({ error: `Error deleting account: ${error.message}` });
+    }
+};
+
+//upload accordian
 export const uploadAcccordian =  async (req, res) => {
     try {
         console.log(req.body);
@@ -197,6 +308,8 @@ export const uploadAcccordian =  async (req, res) => {
     }
 };
 
+
+//update accordian
 export const updateAccordian = async (req, res) => {
     const accordionId = req.params.id;
 
@@ -222,4 +335,53 @@ export const updateAccordian = async (req, res) => {
     }
 };
 
+export const getAccordian = async (req, res) => {
+    try {
+  
+        console.log(req.params.accordianHeading);
+      // Find the module based on the moduleHeading
+      const foundAccordian = await Accordian.findOne({ accordianHeading: req.params.accordianHeading });
+  
+      // Check if the module is found
+      if (!foundAccordian) {
+        return res.status(404).json({ message: 'Module not found' });
+      }
+  
+      // Respond with the found module
+      res.json(foundAccordian);
+    } catch (error) {
+      console.error('Error fetching module:', error);
+      res.status(500).json({ error: `Error fetching module: ${error.message}` });
+    }
+  };
 
+
+//delete Accordian
+
+
+export const deleteAccordian = async (req, res) => {
+    try {
+        console.log(req.params.accordianHeading);
+
+        // Find the document based on the accordianHeading
+        const existingAccordianObject = await Accordian.findOne({ accordianHeading: req.params.accordianHeading });
+
+        if (!existingAccordianObject) {
+            return res.status(404).json({ success: false, message: 'Accordian not found.' });
+        }
+
+        // Find and delete the document based on the accordianHeading
+        const deletedAccordian = await Accordian.findOneAndDelete({ accordianHeading: req.params.accordianHeading });
+
+        // Check if the document is found and deleted
+        if (!deletedAccordian) {
+            return res.status(404).json({ message: 'Accordian not found for deletion' });
+        }
+
+        // Respond with a success message
+        res.json({ message: 'Accordian deleted successfully', deletedAccordian });
+    } catch (error) {
+        console.error('Error deleting accordian:', error);
+        res.status(500).json({ error: `Error deleting accordian: ${error.message}` });
+    }
+};
