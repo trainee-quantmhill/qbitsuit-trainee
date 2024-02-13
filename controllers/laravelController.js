@@ -45,24 +45,23 @@ export const uploadLaravel = async (req, res) => {
 export const updateLaravel = async (req, res) => {
     try {
         // Check if the image exists in the database
-        const existlaravelObject = await Laravel.findById(req.params.id);
+        // const existlaravelObject = await Laravel.findById(req.params.id);
 
-        if (!existlaravelObject) {
-            return res.status(404).json({ success: false, message: 'laravelobject not found.' });
-        }
+        // if (!existlaravelObject) {
+        //     return res.status(404).json({ success: false, message: 'laravelobject not found.' });
+        // }
         if(req.file){
-            const laravelUrl = existlaravelObject.laravelUrl;
+            // const laravelUrl = existlaravelObject.laravelUrl;
 
-            
-            // Extract the public ID from the Cloudinary URL
-            const publicId = extractPublicIdFromUrl(laravelUrl);
+            // // Extract the public ID from the Cloudinary URL
+            // const publicId = extractPublicIdFromUrl(laravelUrl);
     
-            if (!publicId) {
-                return res.status(400).json({ error: 'Invalid Cloudinary URL' });
-            }
+            // if (!publicId) {
+            //     return res.status(400).json({ error: 'Invalid Cloudinary URL' });
+            // }
     
-            // Delete the image from Cloudinary using its public ID
-            await cloudinary.uploader.destroy(publicId);
+            // // Delete the image from Cloudinary using its public ID
+            // await cloudinary.uploader.destroy(publicId);
     
         
         // Upload the new image to Cloudinary
@@ -70,11 +69,11 @@ export const updateLaravel = async (req, res) => {
             if (err) {
                 return res.status(500).json({ error: 'Error updating to Cloudinary' });
             }
-            console.log("url:",result.url);
+            
             // Update the image details in the database
-            const updatedImage = await Laravel.findByIdAndUpdate(req.params.id, {
-                laravelHeading: req.body.laravelHeading || existlaravelObject.laravelHeading,
-                laravelSubheading: req.body.laravelSubheading || existlaravelObject.laravelSubheading,
+            const updatedImage = await Laravel.updateOne({}, {
+                laravelHeading: req.body.laravelHeading || laravelHeading,
+                laravelSubheading: req.body.laravelSubheading || laravelSubheading,
                 laravelUrl: result.url
             }, { new: true });
 
@@ -85,9 +84,9 @@ export const updateLaravel = async (req, res) => {
         }).end(req.file.buffer);
     } 
     else{
-        const updatedImage = await Laravel.findByIdAndUpdate(req.params.id, {
-            laravelHeading: req.body.laravelHeading || existlaravelObject.laravelHeading,
-            laravelSubheading: req.body.laravelSubheading || existlaravelObject.laravelSubheading,
+        const updatedImage = await Laravel.updateOne({}, {
+            laravelHeading: req.body.laravelHeading || laravelHeading,
+            laravelSubheading: req.body.laravelSubheading || laravelSubheading,
         }, { new: true });
         res.json({
             message: 'File updated successfully',
@@ -125,8 +124,8 @@ export const getLaravel = async (req, res) => {
     }
 };
 
-//delete laravel
 
+//delete laravel
 export const deleteLaravel = async (req, res) => {
     try {
 

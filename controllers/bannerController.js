@@ -114,6 +114,8 @@ export const updateBanner = async (req, res) => {
             // Wait for all uploads to complete
             const uploadedUrls = await Promise.all(uploadPromises);
             
+            // Update the imageUrls in the database
+            const banner = await Banner.findOneAndUpdate({}, { imageUrls: uploadedUrls }, { new: true });
             //update  the image urls in the database 
             // for (let i = 0; i < uploadedUrls.length; i++) {
             //     existBannerObject.imageUrls[i] = uploadedUrls[i];
@@ -127,6 +129,7 @@ export const updateBanner = async (req, res) => {
             }, { new: true });
             res.json({
                 message: 'File updated successfully',
+                banner
             });
 
         } else {
