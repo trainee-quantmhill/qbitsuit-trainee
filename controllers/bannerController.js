@@ -67,28 +67,28 @@ export const uploadDetails = async (req, res) => {
 //Update the  Banner
 export const updateBanner = async (req, res) => {
     try {
-        const existBannerObject = await Banner.findById(req.params.id);
+        // const existBannerObject = await Banner.findById(req.params.id);
 
         //make array of urls
         const imageBuffers = req.files || [];
 
 
         //check existBannerObject exit or not 
-        if (!existBannerObject) {
-            return res.status(404).json({ success: false, message: 'Image not found.' });
-        }
+        // if (!existBannerObject) {
+        //     return res.status(404).json({ success: false, message: 'Image not found.' });
+        // }
 
-        if (existBannerObject.imageUrls.length !== 0) {
+        if (imageBuffers.length !== 0) {
 
-            //Delete the existing image or urls
-            for (let i = 0; i < req.files.length; i++) {
-                const url = existBannerObject.imageUrls[i];
-                const publicId = extractPublicIdFromUrl(url);
-                if (!publicId) {
-                    return res.status(400).json({ error: 'Invalid Clodinary URL' });
-                }
-                await cloudinary.uploader.destroy(publicId);
-            }
+        //     //Delete the existing image or urls
+        //     for (let i = 0; i < req.files.length; i++) {
+        //         const url = existBannerObject.imageUrls[i];
+        //         const publicId = extractPublicIdFromUrl(url);
+        //         if (!publicId) {
+        //             return res.status(400).json({ error: 'Invalid Clodinary URL' });
+        //         }
+        //         await cloudinary.uploader.destroy(publicId);
+        //     }
 
             // Upload each image to Cloudinary and get URLs
             const uploadPromises = imageBuffers.map((imageBuffer) => {
@@ -115,15 +115,15 @@ export const updateBanner = async (req, res) => {
             const uploadedUrls = await Promise.all(uploadPromises);
             
             //update  the image urls in the database 
-            for (let i = 0; i < uploadedUrls.length; i++) {
-                existBannerObject.imageUrls[i] = uploadedUrls[i];
-            }
-            await existBannerObject.save();
+            // for (let i = 0; i < uploadedUrls.length; i++) {
+            //     existBannerObject.imageUrls[i] = uploadedUrls[i];
+            // }
+            // await existBannerObject.save();
 
             //update  the details of banner in the database 
-            const updatedImage = await Banner.findByIdAndUpdate(req.params.id, {
-                bannerHeading: req.body.bannerHeading || existBannerObject.bannerHeading,
-                bannerParagraph: req.body.bannerParagraph || existBannerObject.bannerParagraph,
+            const updatedImage = await Banner.updateOne({}, {
+                bannerHeading: req.body.bannerHeading || bannerHeading,
+                bannerParagraph: req.body.bannerParagraph || bannerParagraph,
             }, { new: true });
             res.json({
                 message: 'File updated successfully',
@@ -131,7 +131,7 @@ export const updateBanner = async (req, res) => {
 
         } else {
             // Update the banner details in the database
-            const updatedImage = await Banner.findByIdAndUpdate(req.params.id, {
+            const updatedImage = await Banner.updateOne({}, {
                 bannerHeading: req.body.bannerHeading || existBannerObject.bannerHeading,
                 bannerParagraph: req.body.bannerParagraph || existBannerObject.bannerParagraph,
             }, { new: true });
@@ -164,7 +164,7 @@ export const getBanner = async (req, res) => {
         console.log(req.params.bannerHeading);
       
         // Find the banner based on the bannerHeading
-        const foundBanner = await Banner.findOne({ bannerHeading: req.params.bannerHeading });
+        const foundBanner = await Banner.findOne({  });
   
         // Check if the banner is found
         if (!foundBanner) {

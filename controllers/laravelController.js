@@ -109,8 +109,6 @@ const extractPublicIdFromUrl = (url) => {
 //get laravel
 export const getLaravel = async (req, res) => {
     try {
-        console.log(req.params.laravelHeading);
-
         // Find the document based on the laravelHeading
         const foundLaravel = await Laravel.findOne({ laravelHeading: req.params.laravelHeading });
 
