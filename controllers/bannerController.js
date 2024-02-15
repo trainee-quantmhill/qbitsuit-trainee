@@ -146,7 +146,6 @@ const extractPublicIdFromUrl = (url) => {
 //get Banner
 export const getBanner = async (req, res) => {
     try {
-        console.log(req.params.bannerHeading);
       
         // Find the banner based on the bannerHeading
         const foundBanner = await Banner.findOne({  });
@@ -168,7 +167,6 @@ export const getBanner = async (req, res) => {
 
 export const deleteBanner = async (req, res) => {
     try {
-        console.log(req.params.bannerHeading);
 
         const existBannerObject = await Banner.findOne({ bannerHeading: req.params.bannerHeading });
 

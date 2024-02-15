@@ -323,7 +323,6 @@ export const updateAccordian = async (req, res) => {
 export const getAccordian = async (req, res) => {
     try {
   
-        console.log(req.params.id);
       // Find the module based on the moduleHeading
       const foundAccordian = await Accordian.findOne({} );
   

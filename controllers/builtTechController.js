@@ -46,7 +46,7 @@ export const updateBuiltTech = async (req, res) => {
         };
 
         const options = { new: true }; // This ensures that the updated document is returned
-        const updatedBuiltTech = await Built.updateOne(filter, update, options);
+        await Built.updateOne(filter, update, options);
 
         const builtTech = await Built.findOne({});
         res.json({
@@ -169,7 +169,7 @@ export const updateBuiltTechCards = async (req, res) => {
             }).end(req.file.buffer);
         } else {
             // Update the Laravel details in the database without changing the image URL
-            const cards = await Cards.updateOne({}, {
+             await Cards.updateOne({}, {
                 cardheading: req.body.cardheading || cardheading,
                 cardParagraph: req.body.cardParagraph ||cardParagraph,
             }, { new: true });

@@ -9,7 +9,6 @@ import { Cases, FashionBox } from "../model/fashionBoxModel.js";
 //upload FashionBox
 export const uploadFashionBox = async (req, res) => {
     try {
-        console.log(req.body);
         const { fashionBoxHeading, fashionBoxSubheading } = req.body;
 
         // Check if required fields are present
