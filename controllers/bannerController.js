@@ -67,28 +67,9 @@ export const uploadDetails = async (req, res) => {
 //Update the  Banner
 export const updateBanner = async (req, res) => {
     try {
-        // const existBannerObject = await Banner.findById(req.params.id);
-
         //make array of urls
         const imageBuffers = req.files || [];
-
-
-        //check existBannerObject exit or not 
-        // if (!existBannerObject) {
-        //     return res.status(404).json({ success: false, message: 'Image not found.' });
-        // }
-
         if (imageBuffers.length !== 0) {
-
-        //     //Delete the existing image or urls
-        //     for (let i = 0; i < req.files.length; i++) {
-        //         const url = existBannerObject.imageUrls[i];
-        //         const publicId = extractPublicIdFromUrl(url);
-        //         if (!publicId) {
-        //             return res.status(400).json({ error: 'Invalid Clodinary URL' });
-        //         }
-        //         await cloudinary.uploader.destroy(publicId);
-        //     }
 
             // Upload each image to Cloudinary and get URLs
             const uploadPromises = imageBuffers.map((imageBuffer) => {
@@ -116,11 +97,6 @@ export const updateBanner = async (req, res) => {
             
             // Update the imageUrls in the database
             const banner = await Banner.findOneAndUpdate({}, { imageUrls: uploadedUrls }, { new: true });
-            //update  the image urls in the database 
-            // for (let i = 0; i < uploadedUrls.length; i++) {
-            //     existBannerObject.imageUrls[i] = uploadedUrls[i];
-            // }
-            // await existBannerObject.save();
 
             //update  the details of banner in the database 
             const updatedImage = await Banner.updateOne({}, {

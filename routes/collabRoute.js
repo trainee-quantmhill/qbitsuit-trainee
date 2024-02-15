@@ -13,6 +13,6 @@ import { Upload } from '../middlewares/update.js';
 
 router.post('/upload-collabs',Upload.single('image'),uploadCollabs);
 router.patch('/update-collabs/:id',Upload.single('image'),updateCollabs);
-router.get('/get-collab/:collabHeading',getCollab);
+router.get('/get-collab/',getCollab);
 router.delete('/delete-collab/:collabHeading',deleteCollab);
 export default router;

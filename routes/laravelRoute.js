@@ -9,7 +9,7 @@ const router = express.Router();
 
 router.post('/upload-laravel',Upload.single('image'),uploadLaravel);
 router.patch('/update-laravel/:id',Upload.single('image'),updateLaravel);
-router.get('/get-laravel/:laravelHeading',getLaravel);
+router.get('/get-laravel/',getLaravel);
 router.delete('/delete-laravel/:laravelHeading',deleteLaravel);
 
 export default router;

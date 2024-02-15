@@ -14,7 +14,7 @@ import collabRoute from './routes/collabRoute.js';
 import fashionBoxRoute from './routes/fashionBoxRoute.js';
 import cors  from 'cors';
 import fileUpload from 'express-fileupload';
-
+import corn from 'node-cron';
 const app = express();
 app.use(cors());
 
@@ -37,6 +37,11 @@ app.use(fileUpload({
 }))
 const PORT = 3000;
 
+// const c = corn.schedule('* * * * * *',()=>{
+//     console.log("hello");
+// })
+
+// c.stop()
 
 Connection();
 

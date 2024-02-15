@@ -14,7 +14,7 @@ export const uploadLaravel = async (req, res) => {
         if (!laravelHeading || !laravelSubheading) {
             return res.status(400).json({ error: 'All fields are required' });
         }
-        
+
         // Upload the file to Cloudinary using upload_stream
         cloudinary.uploader.upload_stream({ resource_type: 'auto' }, async (err, result) => {
             if (err) {
@@ -44,58 +44,45 @@ export const uploadLaravel = async (req, res) => {
 //update Laravel
 export const updateLaravel = async (req, res) => {
     try {
-        // Check if the image exists in the database
-        // const existlaravelObject = await Laravel.findById(req.params.id);
+        if (req.file) {
+            // Upload the new image to Cloudinary
+            cloudinary.uploader.upload_stream({ resource_type: 'auto' }, async (err, result) => {
+                if (err) {
+                    return res.status(500).json({ error: 'Error updating to Cloudinary' });
+                }
 
-        // if (!existlaravelObject) {
-        //     return res.status(404).json({ success: false, message: 'laravelobject not found.' });
-        // }
-        if(req.file){
-            // const laravelUrl = existlaravelObject.laravelUrl;
+                // Update the image URL and Laravel details in the database
+                const laravel = await Laravel.updateOne({}, {
+                    laravelUrl: result.url,
+                    laravelHeading: req.body.laravelHeading || laravelHeading,
+                    laravelSubheading: req.body.laravelSubheading || laravelSubheading,
+                }, { new: true });
 
-            // // Extract the public ID from the Cloudinary URL
-            // const publicId = extractPublicIdFromUrl(laravelUrl);
-    
-            // if (!publicId) {
-            //     return res.status(400).json({ error: 'Invalid Cloudinary URL' });
-            // }
-    
-            // // Delete the image from Cloudinary using its public ID
-            // await cloudinary.uploader.destroy(publicId);
-    
-        
-        // Upload the new image to Cloudinary
-        cloudinary.uploader.upload_stream({ resource_type: 'auto' }, async (err, result) => {
-            if (err) {
-                return res.status(500).json({ error: 'Error updating to Cloudinary' });
-            }
-            
-            // Update the image details in the database
-            const updatedImage = await Laravel.updateOne({}, {
+                // Send a success response
+                res.json({
+                    message: 'File and Laravel details updated successfully',
+                    laravel,
+                });
+            }).end(req.file.buffer);
+        } else {
+            // Update the Laravel details in the database without changing the image URL
+            const laravel = await Laravel.updateOne({}, {
                 laravelHeading: req.body.laravelHeading || laravelHeading,
                 laravelSubheading: req.body.laravelSubheading || laravelSubheading,
-                laravelUrl: result.url
             }, { new: true });
 
-            // Send a success response
             res.json({
-                message: 'File updated successfully',
+                message: 'Laravel details updated successfully',
+                laravel,
             });
-        }).end(req.file.buffer);
-    } 
-    else{
-        const updatedImage = await Laravel.updateOne({}, {
-            laravelHeading: req.body.laravelHeading || laravelHeading,
-            laravelSubheading: req.body.laravelSubheading || laravelSubheading,
-        }, { new: true });
-        res.json({
-            message: 'File updated successfully',
-        });
-    }
-}catch (error) {
+        }
+    } catch (error) {
         res.status(500).json({ error: `Error handling file upload: ${error.message}` });
     }
 };
+
+
+
 const extractPublicIdFromUrl = (url) => {
     const matches = url.match(/\/upload\/v\d+\/(.+?)\./);
 
@@ -108,8 +95,8 @@ const extractPublicIdFromUrl = (url) => {
 //get laravel
 export const getLaravel = async (req, res) => {
     try {
-        // Find the document based on the laravelHeading
-        const foundLaravel = await Laravel.findOne({ laravelHeading: req.params.laravelHeading });
+        // Find the document based on the 
+        const foundLaravel = await Laravel.findOne({});
 
         // Check if the document is found
         if (!foundLaravel) {

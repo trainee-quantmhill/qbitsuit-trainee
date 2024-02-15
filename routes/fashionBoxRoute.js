@@ -10,11 +10,11 @@ const router = express.Router();
 
 router.post('/upload-fashionbox',uploadFashionBox);
 router.patch('/update-fashionbox/:id',updateFashionBox);
-router.get('/get-fashionBox/:fashionBoxHeading',getFashionBox);
+router.get('/get-fashionBox/',getFashionBox);
 router.delete('/delete-fashionBox/:fashionBoxHeading',deleteFashionBox);
 
 router.post('/upload-cases',Upload.single('image'),uploadCases);
 router.patch('/update-fashionbox-cases/:id',Upload.single('image'),updateCases);
-router.get('/get-fashionBox-cases/:heading',getFashionBoxCases);
+router.get('/get-fashionBox-cases/',getFashionBoxCases);
 router.delete('/delete-fashionBox-cases/:heading',deleteFashionBoxCases);
 export default router;

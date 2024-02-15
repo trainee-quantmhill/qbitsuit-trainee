@@ -40,7 +40,7 @@ export const getModule = async (req, res) => {
       console.log(req.params.moduleHeading);
   
       // Find the module based on the moduleHeading
-      const foundModule = await Module.findOne({ moduleHeading: req.params.moduleHeading });
+      const foundModule = await Module.findOne({ });
   
       // Check if the module is found
       if (!foundModule) {
@@ -57,26 +57,24 @@ export const getModule = async (req, res) => {
   
 
 //updateModule
-export const updateModule= async (req, res) => {
-    const moduleId = req.params.id; 
+export const updateModule = async (req, res) => {
     try {
-        // Find the module by ID
-        const existingModule = await Module.findById(moduleId);
-        console.log(req.body);
-        if (!existingModule) {
-            return res.status(404).json({ message: 'Module not found' });
-        }
+        // Assuming you have some criteria to uniquely identify the document to update
+        const filter = {}; // Add your filter criteria here
 
-        // Update module details
-        existingModule.moduleHeading = req.body.moduleHeading || existingModule.moduleHeading;
-        existingModule.moduleSubheading = req.body.moduleSubheading || existingModule.moduleSubheading;
+        const update = {
+            moduleHeading: req.body.moduleHeading || moduleHeading,
+            moduleSubheading: req.body.moduleSubheading || moduleSubheading,
+            // Add other fields you want to update
+        };
 
-        // Save the updated module
-        const updatedModule = await existingModule.save();
+        const options = { new: true }; // This ensures that the updated document is returned
+
+        const updatedModule = await Module.updateOne(filter, update, options);
 
         res.json({
-            message:"update sucessfully",
-            updatedModule
+            message: "Update successfully",
+            updatedModule,
         });
     } catch (error) {
         res.status(500).json({ error: `${error}` });
@@ -104,6 +102,8 @@ export const deleteModule = async (req, res) => {
         res.status(500).json({ error: `Error deleting module: ${error.message}` });
     }
 };
+
+
 
 
 
@@ -153,59 +153,39 @@ export const uploadAccount = async (req, res) => {
 //updateAccount
 export const updateAcoount = async (req, res) => {
     try {
-        // Check if the image exists in the database
-        const existingAccountObject = await Account.findById(req.params.id);
+        if (req.file) {
+            // Upload the new image to Cloudinary
+            cloudinary.uploader.upload_stream({ resource_type: 'auto' }, async (err, result) => {
+                if (err) {
+                    return res.status(500).json({ error: 'Error updating to Cloudinary' });
+                }
 
-        if (!existingAccountObject) {
-            return res.status(404).json({ success: false, message: 'Image not found.' });
-        }
-        if(req.file){
-            const accountImageUrl = existingAccountObject.accountImageUrl;
+                // Update the image URL and Laravel details in the database
+                const account = await Account.updateOne({}, {
+                    accountImageUrl: result.url,
+                    accountHeading: req.body.accountHeading || accountHeading,
+                    accountSubheading: req.body.accountSubheading ||accountSubheading,
+                }, { new: true });
 
-            // Extract the public ID from the Cloudinary URL
-            const publicId = extractPublicIdFromUrl(accountImageUrl);
-    
-            if (!publicId) {
-                return res.status(400).json({ error: 'Invalid Cloudinary URL' });
-            }
-    
-            // Delete the image from Cloudinary using its public ID
-            await cloudinary.uploader.destroy(publicId);
-    
-        
-        // Upload the new image to Cloudinary
-        cloudinary.uploader.upload_stream({ resource_type: 'auto' }, async (err, result) => {
-            if (err) {
-                console.error('Error uploading to Cloudinary:', err);
-                return res.status(500).json({ error: 'Error updating to Cloudinary' });
-            }
-
-            // Update the image details in the database
-            const updatedCollabs = await Account.findByIdAndUpdate(req.params.id, {
-                accountHeading: req.body.accountHeading || existingAccountObject.accountHeading,
-                accountSubheading: req.body.accountSubheading || existingAccountObject.accountSubheading, 
-                accountImageUrl: result.url      
+                // Send a success response
+                res.json({
+                    message: 'File and Laravel details updated successfully',
+                    account,
+                });
+            }).end(req.file.buffer);
+        } else {
+            // Update the Laravel details in the database without changing the image URL
+            const account = await Account.updateOne({}, {
+                accountHeading: req.body.accountHeading || accountHeading,
+                accountSubheading: req.body.accountSubheading ||accountSubheading,
             }, { new: true });
 
-            console.log(updatedCollabs);
-            // Send a success response
             res.json({
-                message: 'File upldated successfully',
-                cloudinaryResult: result
+                message: 'account details updated successfully',
+                account,
             });
-        }).end(req.file.buffer);
-    } 
-    else{
-        const updatedCollabs = await Account.findByIdAndUpdate(req.params.id, {
-            accountHeading: req.body.accountHeading || existingAccountObject.accountHeading,
-            accountSubheading: req.body.accountSubheading || existingAccountObject.accountSubheading,
-        }, { new: true });
-        res.json({
-            message: 'File updated successfully',
-        });
-    }
-}catch (error) {
-        console.error('Error handling file upload:', error);
+        }
+    } catch (error) {
         res.status(500).json({ error: `Error handling file upload: ${error.message}` });
     }
 };
@@ -213,9 +193,8 @@ export const updateAcoount = async (req, res) => {
 //get account
 export const getAccount = async (req, res) => {
     try {
-        console.log(req.params.accountHeading);
-      // Find the account based on the accountHeading
-      const foundAccount = await Account.findOne({accountHeading: req.params.accountHeading });
+      // Find the account based on the 
+      const foundAccount = await Account.findOne({ });
   
       // Check if the account is found
       if (!foundAccount) {
@@ -281,6 +260,8 @@ export const deleteAccount = async (req, res) => {
     }
 };
 
+
+
 //upload accordian
 export const uploadAcccordian =  async (req, res) => {
     try {
@@ -311,36 +292,36 @@ export const uploadAcccordian =  async (req, res) => {
 
 //update accordian
 export const updateAccordian = async (req, res) => {
-    const accordionId = req.params.id;
-
     try {
-        // Find the accordion by ID
-        const existingAccordion = await Accordian.findById(accordionId);
+        // Assuming you have some criteria to uniquely identify the document to update
+        const filter = {}; // Add your filter criteria here
 
-        if (!existingAccordion) {
-            return res.status(404).json({ message: 'Accordion not found' });
-        }
+        const update = {
+            accordianHeading: req.body.accordianHeading || accordianHeading,
+            accordianParagraph: req.body.accordianParagraph || accordianParagraph,
+            // Add other fields you want to update
+        };
 
-        // Update accordion details
-        existingAccordion.accordianHeading = req.body.accordianHeading || existingAccordion.accordianHeading;
-        existingAccordion.accordianParagraph = req.body.accordianParagraph || existingAccordion.accordianParagraph;
+        const options = { new: true }; // This ensures that the updated document is returned
 
-        // Save the updated accordion
-        const updatedAccordion = await existingAccordion.save();
+        const updatedAccordion = await Accordian.updateOne(filter, update, options);
 
-        res.json(updatedAccordion);
+        res.json({
+            message: "Update successfully",
+            updatedAccordion,
+        });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({error:`${error}` });
+        res.status(500).json({ error: `${error}` });
     }
 };
+
 
 export const getAccordian = async (req, res) => {
     try {
   
-        console.log(req.params.accordianHeading);
+        console.log(req.params.id);
       // Find the module based on the moduleHeading
-      const foundAccordian = await Accordian.findOne({ accordianHeading: req.params.accordianHeading });
+      const foundAccordian = await Accordian.findOne({} );
   
       // Check if the module is found
       if (!foundAccordian) {

@@ -6,85 +6,130 @@ import Collabs from '../model/collabsModel.js'
 
 
 //update collab
+// export const updateCollabs = async (req, res) => {
+//     try {
+//         // Check if the image exists in the database
+//         const existingCollabs = await Collabs.findById(req.params.id);
+
+//         if (!existingCollabs) {
+//             return res.status(404).json({ success: false, message: 'collabobject not found.' });
+//         }
+//         if (req.file) {
+//             const checkPointUrl = existingCollabs.checkPointUrl;
+
+//             // Extract the public ID from the Cloudinary URL
+//             const publicId = extractPublicIdFromUrl(checkPointUrl);
+
+//             if (!publicId) {
+//                 return res.status(400).json({ error: 'Invalid Cloudinary URL' });
+//             }
+
+//             // Delete the image from Cloudinary using its public ID
+//             await cloudinary.uploader.destroy(publicId);
+
+//             // Upload the new image to Cloudinary
+//             cloudinary.uploader.upload_stream({ resource_type: 'auto' }, async (err, result) => {
+//                 if (err) {
+//                     return res.status(500).json({ error: 'Error updating to Cloudinary' });
+//                 }
+
+//                 // Update the image details in the database
+//                 const updatedCollabs = await Collabs.findByIdAndUpdate(req.params.id, {
+//                     collabHeading: req.body.collabHeading || existingCollabs.collabHeading,
+//                     collabParagraph: req.body.collabParagraph || existingCollabs.collabParagraph,
+//                     collabSubheading: req.body.collabSubheading || existingCollabs.collabSubheading,
+//                     checkPointHeading: req.body.checkPointHeading || existingCollabs.checkPointHeading,
+//                     checkPointParagraph: req.body.checkPointParagraph || existingCollabs.checkPointParagraph,
+//                     checkPointUrl: result.url
+//                 }, { new: true });
+
+//                 // Send a success response
+//                 res.json({
+//                     message: 'File upldated successfully',
+//                     cloudinaryResult: result
+//                 });
+//             }).end(req.file.buffer);
+//         }
+//         else {
+//             const updatedCollabs = await Collabs.findByIdAndUpdate(req.params.id, {
+//                 collabHeading: req.body.collabHeading || existingCollabs.collabHeading,
+//                 collabParagraph: req.body.collabParagraph || existingCollabs.collabParagraph,
+//                 collabSubheading: req.body.collabSubheading || existingCollabs.collabSubheading,
+//                 checkPointHeading: req.body.checkPointHeading || existingCollabs.checkPointHeading,
+//                 checkPointParagraph: req.body.checkPointParagraph || existingCollabs.checkPointParagraph,
+//             }, { new: true });
+//             res.json({
+//                 message: 'File updated successfully',
+//             });
+//         }
+//     } catch (error) {
+//         console.error('Error handling file upload:', error);
+//         res.status(500).json({ error: `Error handling file upload: ${error.message}` });
+//     }
+// };
+
 export const updateCollabs = async (req, res) => {
     try {
-        // Check if the image exists in the database
-        const existingCollabs = await Collabs.findById(req.params.id);
+        if (req.file) {
+            // Upload the new image to Cloudinary
+            cloudinary.uploader.upload_stream({ resource_type: 'auto' }, async (err, result) => {
+                if (err) {
+                    return res.status(500).json({ error: 'Error updating to Cloudinary' });
+                }
 
-        if (!existingCollabs) {
-            return res.status(404).json({ success: false, message: 'collabobject not found.' });
-        }
-        if(req.file){
-            const checkPointUrl = existingCollabs.checkPointUrl;
+                // Update the image URL and Laravel details in the database
+                const collab = await Collabs.updateOne({}, {
+                    collabHeading: req.body.collabHeading || collabHeading,
+                    collabParagraph: req.body.collabParagraph || collabParagraph,
+                    collabSubheading: req.body.collabSubheading || collabSubheading,
+                    checkPointHeading: req.body.checkPointHeading || checkPointHeading,
+                    checkPointParagraph: req.body.checkPointParagraph || checkPointParagraph,
+                    checkPointUrl: result.url,
+                }, { new: true });
 
-            // Extract the public ID from the Cloudinary URL
-            const publicId = extractPublicIdFromUrl(checkPointUrl);
-    
-            if (!publicId) {
-                return res.status(400).json({ error: 'Invalid Cloudinary URL' });
-            }
-    
-            // Delete the image from Cloudinary using its public ID
-            await cloudinary.uploader.destroy(publicId);
-            
-        // Upload the new image to Cloudinary
-        cloudinary.uploader.upload_stream({ resource_type: 'auto' }, async (err, result) => {
-            if (err) {
-                return res.status(500).json({ error: 'Error updating to Cloudinary' });
-            }
-
-            // Update the image details in the database
-            const updatedCollabs = await Collabs.findByIdAndUpdate(req.params.id, {
-                collabHeading: req.body.collabHeading || existingCollabs.collabHeading,
-                collabParagraph: req.body.collabParagraph || existingCollabs.collabParagraph,
-                collabSubheading: req.body.collabSubheading || existingCollabs.collabSubheading,
-                checkPointHeading: req.body.checkPointHeading || existingCollabs.checkPointHeading,
-                checkPointParagraph: req.body.checkPointParagraph || existingCollabs.checkPointParagraph,
-                checkPointUrl: result.url
+                // Send a success response
+                res.json({
+                    message: 'File and Collabs details updated successfully',
+                    collab,
+                });
+            }).end(req.file.buffer);
+        } else {
+            // Update the Laravel details in the database without changing the image URL
+            const collab = await Collabs.updateOne({}, {
+                collabHeading: req.body.collabHeading || collabHeading,
+                collabParagraph: req.body.collabParagraph || collabParagraph,
+                collabSubheading: req.body.collabSubheading || collabSubheading,
+                checkPointHeading: req.body.checkPointHeading || checkPointHeading,
+                checkPointParagraph: req.body.checkPointParagraph || checkPointParagraph,
             }, { new: true });
 
-            // Send a success response
             res.json({
-                message: 'File upldated successfully',
-                cloudinaryResult: result
+                message: 'collab details updated successfully',
+                collab,
             });
-        }).end(req.file.buffer);
-}
-    else{
-        const updatedCollabs = await Collabs.findByIdAndUpdate(req.params.id, {
-            collabHeading: req.body.collabHeading || existingCollabs.collabHeading,
-                collabParagraph: req.body.collabParagraph || existingCollabs.collabParagraph,
-                collabSubheading: req.body.collabSubheading || existingCollabs.collabSubheading,
-                checkPointHeading: req.body.checkPointHeading || existingCollabs.checkPointHeading,
-                checkPointParagraph: req.body.checkPointParagraph || existingCollabs.checkPointParagraph,
-        }, { new: true });
-        res.json({
-            message: 'File updated successfully',
-        });
-    }
-}catch (error) {
-        console.error('Error handling file upload:', error);
+        }
+    } catch (error) {
         res.status(500).json({ error: `Error handling file upload: ${error.message}` });
     }
 };
 
-console.log("sajgd")
+
 //upload collab
 export const uploadCollabs = async (req, res) => {
     try {
         // Access the uploaded file using req.file
         const file = req.file;
-        console.log("file::",file);
+        console.log("file::", file);
         console.log(req.body);
 
-        const {collabHeading,collabParagraph,collabSubheading,checkPointHeading,checkPointParagraph}=req.body
+        const { collabHeading, collabParagraph, collabSubheading, checkPointHeading, checkPointParagraph } = req.body
 
         // Check if file is present
         if (!file) {
             return res.status(400).json({ error: 'All fields are required' });
         }
 
-        if (!collabHeading || !collabParagraph || !collabSubheading  || !checkPointHeading || !checkPointParagraph ) {
+        if (!collabHeading || !collabParagraph || !collabSubheading || !checkPointHeading || !checkPointParagraph) {
             return res.status(400).json({ error: 'All fields are required' });
         }
         // Upload the file to Cloudinary using upload_stream
@@ -132,10 +177,9 @@ const extractPublicIdFromUrl = (url) => {
 //get collabe
 export const getCollab = async (req, res) => {
     try {
-        console.log(req.params.collabHeading);
 
-        // Find the document based on the collabHeading
-        const foundCollab = await Collabs.findOne({ collabHeading: req.params.collabHeading });
+        // Find the document based on the 
+        const foundCollab = await Collabs.findOne({});
 
         // Check if the document is found
         if (!foundCollab) {

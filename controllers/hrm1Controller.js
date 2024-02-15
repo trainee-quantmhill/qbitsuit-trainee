@@ -1,7 +1,7 @@
 import cloudinary from '../config/cloudinaryConfig.js';
 import upload from '../config/multerConfig.js';
 
-import { Hrm1 ,HrmAccordian} from '../model/hrm1Model.js';
+import { Hrm1, HrmAccordian } from '../model/hrm1Model.js';
 
 
 //upload hrm
@@ -45,58 +45,98 @@ export const uploadHrm = async (req, res) => {
 };
 
 //Hrm  update
+// export const updateHrm = async (req, res) => {
+//     try {
+//         // Check if the image exists in the database
+//         const existhrmObject = await Hrm1.findById(req.params.id);
+
+//         if (!existhrmObject) {
+//             return res.status(404).json({ success: false, message: 'Image not found.' });
+//         }
+//         if (req.file) {
+//             const hrmUrl = existhrmObject.hrmUrl;
+
+//             // Extract the public ID from the Cloudinary URL
+//             const publicId = extractPublicIdFromUrl(hrmUrl);
+
+//             if (!publicId) {
+//                 return res.status(400).json({ error: 'Invalid Cloudinary URL' });
+//             }
+
+//             // Delete the image from Cloudinary using its public ID
+//             await cloudinary.uploader.destroy(publicId);
+
+
+//             // Upload the new image to Cloudinary
+//             cloudinary.uploader.upload_stream({ resource_type: 'auto' }, async (err, result) => {
+//                 if (err) {
+//                     console.error('Error uploading to Cloudinary:', err);
+//                     return res.status(500).json({ error: 'Error updating to Cloudinary' });
+//                 }
+
+//                 // Update the image details in the database
+//                 const updatedImage = await Hrm1.findByIdAndUpdate(req.params.id, {
+//                     hrmHeading: req.body.hrmHeading || existhrmObject.hrmHeading,
+//                     hrmSubheading: req.body.hrmSubheading || existhrmObject.hrmSubheading,
+//                     hrmUrl: result.url
+//                 }, { new: true });
+
+//                 // Send a success response
+//                 res.json({
+//                     message: 'File upldated successfully',
+//                 });
+//             }).end(req.file.buffer);
+//         }
+//         else {
+//             const updatedImage = await Hrm1.findByIdAndUpdate(req.params.id, {
+//                 hrmHeading: req.body.hrmHeading || existhrmObject.hrmHeading,
+//                 hrmSubheading: req.body.hrmSubheading || existhrmObject.hrmSubheading,
+//             }, { new: true });
+//             res.json({
+//                 message: 'File updated successfully',
+//             });
+//         }
+//     } catch (error) {
+//         res.status(500).json({ error: `Error handling file upload: ${error.message}` });
+//     }
+// };
+
+
 export const updateHrm = async (req, res) => {
     try {
-        // Check if the image exists in the database
-        const existhrmObject = await Hrm1.findById(req.params.id);
+        if (req.file) {
+            // Upload the new image to Cloudinary
+            cloudinary.uploader.upload_stream({ resource_type: 'auto' }, async (err, result) => {
+                if (err) {
+                    return res.status(500).json({ error: 'Error updating to Cloudinary' });
+                }
 
-        if (!existhrmObject) {
-            return res.status(404).json({ success: false, message: 'Image not found.' });
-        }
-        if(req.file){
-            const hrmUrl = existhrmObject.hrmUrl;
+                // Update the image URL and Hrm1 details in the database
+                const hrm1 = await Hrm1.updateOne({}, {
+                    hrmUrl: result.url,
+                    hrmHeading: req.body.hrmHeading || hrmHeading,
+                    hrmSubheading: req.body.hrmSubheading || hrmSubheading,
+                }, { new: true });
 
-            // Extract the public ID from the Cloudinary URL
-            const publicId = extractPublicIdFromUrl(hrmUrl);
-    
-            if (!publicId) {
-                return res.status(400).json({ error: 'Invalid Cloudinary URL' });
-            }
-    
-            // Delete the image from Cloudinary using its public ID
-            await cloudinary.uploader.destroy(publicId);
-    
-            
-        // Upload the new image to Cloudinary
-        cloudinary.uploader.upload_stream({ resource_type: 'auto' }, async (err, result) => {
-            if (err) {
-                console.error('Error uploading to Cloudinary:', err);
-                return res.status(500).json({ error: 'Error updating to Cloudinary' });
-            }
-
-            // Update the image details in the database
-            const updatedImage = await Hrm1.findByIdAndUpdate(req.params.id, {
-                hrmHeading: req.body.hrmHeading || existhrmObject.hrmHeading,
-                hrmSubheading: req.body.hrmSubheading || existhrmObject.hrmSubheading,
-                hrmUrl: result.url
+                // Send a success response
+                res.json({
+                    message: 'File and hrm1 details updated successfully',
+                    hrm1,
+                });
+            }).end(req.file.buffer);
+        } else {
+            // Update the Laravel details in the database without changing the image URL
+            const hrm1 = await Hrm1.updateOne({}, {
+                hrmHeading: req.body.hrmHeading || hrmHeading,
+                hrmSubheading: req.body.hrmSubheading || hrmSubheading,
             }, { new: true });
 
-            // Send a success response
             res.json({
-                message: 'File upldated successfully',
+                message: 'account details updated successfully',
+                hrm1,
             });
-        }).end(req.file.buffer);
-    } 
-    else{
-        const updatedImage = await Hrm1.findByIdAndUpdate(req.params.id, {
-            hrmHeading: req.body.hrmHeading || existhrmObject.hrmHeading,
-            hrmSubheading: req.body.hrmSubheading || existhrmObject.hrmSubheading,
-        }, { new: true });
-        res.json({
-            message: 'File updated successfully',
-        });
-    }
-}catch (error) {
+        }
+    } catch (error) {
         res.status(500).json({ error: `Error handling file upload: ${error.message}` });
     }
 };
@@ -114,10 +154,9 @@ const extractPublicIdFromUrl = (url) => {
 //get hrm1
 export const getHrm1 = async (req, res) => {
     try {
-        console.log(req.params.hrmHeading);
 
-        // Find the document based on the hrmHeading
-        const foundHrm1 = await Hrm1.findOne({ hrmHeading: req.params.hrmHeading });
+        // Find the document based on the 
+        const foundHrm1 = await Hrm1.findOne({});
 
         // Check if the document is found
         if (!foundHrm1) {
@@ -156,7 +195,7 @@ export const deleteHrm1 = async (req, res) => {
         await cloudinary.uploader.destroy(publicId);
 
         // Find and delete the document based on the hrmHeading
-        const deletedHrm1 = await Hrm1.findOneAndDelete({hrmHeading: req.params.hrmHeading });
+        const deletedHrm1 = await Hrm1.findOneAndDelete({ hrmHeading: req.params.hrmHeading });
 
         // Check if the document is found and deleted
         if (!deletedHrm1) {
@@ -173,7 +212,7 @@ export const deleteHrm1 = async (req, res) => {
 
 
 //upload HrmAccord
-export const uploadHrmAccord =  async (req, res) => {
+export const uploadHrmAccord = async (req, res) => {
     try {
         const { accordian_1Heading, accordian_1Paragraph } = req.body;
 
@@ -200,39 +239,34 @@ export const uploadHrmAccord =  async (req, res) => {
 
 //update hrm ACcord
 export const updateHrmAccord = async (req, res) => {
-
     try {
-        // Find the accordion by ID
-        const existingAccordion = await HrmAccordian.findById(req.params.id);
+        // Assuming you have some criteria to uniquely identify the document to update
+        const filter = {}; // Add your filter criteria here
 
-        if (!existingAccordion) {
-            return res.status(404).json({ message: 'Hrm Accordian not found' });
-        }
+        const update = {
+            accordian_1Heading: req.body.accordian_1Heading || accordian_1Heading,
+            accordian_1Paragraph: req.body.accordian_1Paragraph || accordian_1Paragraph,
+        };
 
-        // Update accordion details
-        existingAccordion.accordian_1Heading = req.body.accordian_1Heading || existingAccordion.accordian_1Heading;
-        existingAccordion.accordian_1Paragraph = req.body.accordian_1Paragraph || existingAccordion.accordian_1Paragraph;
+        const options = { new: true }; // This ensures that the updated document is returned
 
-        // Save the updated accordion
-        const updatedAccordion = await existingAccordion.save();
+        const updatedHrmAccord = await HrmAccordian.updateOne(filter, update, options);
 
         res.json({
-            message:"updated sucessfully",
-            updatedAccordion
-        })
+            message: "Update successfully",
+            updatedHrmAccord,
+        });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Internal Server Error' });
+        res.status(500).json({ error: `${error}` });
     }
 };
 
 //get hrm1 Accordian
 export const getHrm1Accordian = async (req, res) => {
     try {
-        console.log(req.params.accordian_1Heading);
 
-        // Find the document based on the accordian_1Heading
-        const foundHrmAccordian = await HrmAccordian.findOne({ accordian_1Heading: req.params.accordian_1Heading });
+        // Find the document based on the 
+        const foundHrmAccordian = await HrmAccordian.findOne({});
 
         // Check if the document is found
         if (!foundHrmAccordian) {
@@ -252,7 +286,7 @@ export const getHrm1Accordian = async (req, res) => {
 export const deleteHrm1Accordian = async (req, res) => {
     try {
         // Find and delete the document based on the accordian_1Heading
-        const deletedHrmAccordian = await HrmAccordian.findOneAndDelete({accordian_1Heading: req.params.accordian_1Heading });
+        const deletedHrmAccordian = await HrmAccordian.findOneAndDelete({ accordian_1Heading: req.params.accordian_1Heading });
 
         // Check if the document is found and deleted
         if (!deletedHrmAccordian) {

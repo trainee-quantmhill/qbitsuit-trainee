@@ -3,11 +3,11 @@ import cloudinary from '../config/cloudinaryConfig.js';
 import upload from '../config/multerConfig.js';
 
 //Components
-import  {Cases,FashionBox} from "../model/fashionBoxModel.js";
+import { Cases, FashionBox } from "../model/fashionBoxModel.js";
 
 
 //upload FashionBox
-export const uploadFashionBox =  async (req, res) => {
+export const uploadFashionBox = async (req, res) => {
     try {
         console.log(req.body);
         const { fashionBoxHeading, fashionBoxSubheading } = req.body;
@@ -34,38 +34,36 @@ export const uploadFashionBox =  async (req, res) => {
 };
 
 //update FashionBox
-export const updateFashionBox =  async (req, res) => {
+export const updateFashionBox = async (req, res) => {
     try {
-        console.log(req.params.id);
-        // Find the FashionBox entry by ID
-        const existingFashionBoxObject = await FashionBox.findById(req.params.id);
-        console.log(existingFashionBoxObject)
-        if (!existingFashionBoxObject) {
-            return res.status(404).json({ message: 'FashionBox not found' });
-        }
+        // Assuming you have some criteria to uniquely identify the document to update
+        const filter = {}; // Add your filter criteria here
 
-        // Update FashionBox details
-        existingFashionBoxObject.fashionBoxHeading = req.body.fashionBoxHeading || existingFashionBoxObject.fashionBoxHeading;
-        existingFashionBoxObject.fashionBoxSubheading = req.body.fashionBoxSubheading || existingFashionBoxObject.fashionBoxSubheading;
+        const update = {
+            fashionBoxHeading: req.body.fashionBoxHeading || fashionBoxHeading,
+            fashionBoxSubheading: req.body.fashionBoxSubheading || fashionBoxSubheading,
+            // Add other fields you want to update
+        };
 
-        // Save the updated FashionBox
-        const updatedFashionBox = await existingFashionBoxObject.save();
+        const options = { new: true }; // This ensures that the updated document is returned
 
-        res.json(updatedFashionBox);
+        const updated = await FashionBox.updateOne(filter, update, options);
+
+        res.json({
+            message: "Update successfully",
+            updated,
+        });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Internal Server Error' });
+        res.status(500).json({ error: `${error}` });
     }
 };
-
 
 //get fashion box
 export const getFashionBox = async (req, res) => {
     try {
-        console.log(req.params.fashionBoxHeading);
 
-        // Find the document based on the fashionBoxHeading
-        const foundFashionBox = await FashionBox.findOne({ fashionBoxHeading: req.params.fashionBoxHeading });
+        // Find the document based on the 
+        const foundFashionBox = await FashionBox.findOne({});
 
         // Check if the document is found
         if (!foundFashionBox) {
@@ -85,7 +83,7 @@ export const getFashionBox = async (req, res) => {
 export const deleteFashionBox = async (req, res) => {
     try {
         // Find and delete the document based on the fashionBoxHeading
-        const deletedFashionBox = await FashionBox.findOneAndDelete({ fashionBoxHeading:req.params.fashionBoxHeading});
+        const deletedFashionBox = await FashionBox.findOneAndDelete({ fashionBoxHeading: req.params.fashionBoxHeading });
 
         // Check if the document is found and deleted
         if (!deletedFashionBox) {
@@ -112,7 +110,7 @@ export const uploadCases = async (req, res) => {
         if (!file) {
             return res.status(400).json({ error: 'No file provided' });
         }
-        
+
         if (!heading || !paragraph) {
             return res.status(400).json({ error: 'All fields are required' });
         }
@@ -146,72 +144,48 @@ export const uploadCases = async (req, res) => {
 //update cases
 export const updateCases = async (req, res) => {
     try {
-        // Check if the image exists in the database
-        
-        const updateCases = await Cases.findById(req.params.id);
+        if (req.file) {
+            // Upload the new image to Cloudinary
+            cloudinary.uploader.upload_stream({ resource_type: 'auto' }, async (err, result) => {
+                if (err) {
+                    return res.status(500).json({ error: 'Error updating to Cloudinary' });
+                }
 
-        if (!updateCases) {
-            return res.status(404).json({ success: false, message: 'builtTechobject not found.' });
-        }
-        if(req.file){ 
-        const fashionBoxUrl = updateCases.fashionBoxUrl;
+                // Update the image URL and Laravel details in the database
+                const cases = await Cases.updateOne({}, {
+                    fashionBoxUrl: result.url,
+                    heading: req.body.heading || heading,
+                    paragraph: req.body.paragraph || paragraph,
+                }, { new: true });
 
-            // Extract the public ID from the Cloudinary URL
-            const publicId = extractPublicIdFromUrl(fashionBoxUrl);
-    
-            if (!publicId) {
-                return res.status(400).json({ error: 'Invalid Cloudinary URL' });
-            }
-    
-            // Delete the image from Cloudinary using its public ID
-            await cloudinary.uploader.destroy(publicId);
-    
-            console.log("image deleted ");
-        
-        // Upload the new image to Cloudinary
-        cloudinary.uploader.upload_stream({ resource_type: 'auto' }, async (err, result) => {
-            if (err) {
-                console.error('Error uploading to Cloudinary:', err);
-                return res.status(500).json({ error: 'Error updating to Cloudinary' });
-            }
-
-            // Update the image details in the database
-            const updatedImage = await Cases.findByIdAndUpdate(req.params.id, {
-                heading: req.body.heading || updateBuiltTechCards.heading,
-                paragraph: req.body.paragraph || updateBuiltTechCards.paragraph,
-                fashionBoxUrl: result.url
+                // Send a success response
+                res.json({
+                    message: 'File and cases details updated successfully',
+                    cases,
+                });
+            }).end(req.file.buffer);
+        } else {
+            // Update the Laravel details in the database without changing the image URL
+            const cases = await Cases.updateOne({}, {
+                heading: req.body.heading || heading,
+                paragraph: req.body.paragraph || paragraph,
             }, { new: true });
 
-            
-            // Send a success response
             res.json({
-                message: 'File upldated successfully',
+                message: 'cases details updated successfully',
+                cases,
             });
-        }).end(req.file.buffer);
-    } 
-    else{
-        const updatedImage = await Cases.findByIdAndUpdate(req.params.id, {
-            heading: req.body.heading || updateBuiltTechCards.heading,
-            paragraph: req.body.paragraph || updateBuiltTechCards.paragraph
-        }, { new: true });
-        res.json({
-            message: 'File upldated successfully',
-        });
-    }
-}catch (error) {
-        console.error('Error handling file upload:', error);
+        }
+    } catch (error) {
         res.status(500).json({ error: `Error handling file upload: ${error.message}` });
     }
 };
 
-
-
 export const getFashionBoxCases = async (req, res) => {
     try {
-        console.log(req.params.heading);
 
-        // Find the document based on the heading
-        const foundCase = await Cases.findOne({ heading: req.params.heading });
+        // Find the document based on the 
+        const foundCase = await Cases.findOne({});
 
         // Check if the document is found
         if (!foundCase) {
@@ -257,9 +231,9 @@ export const deleteFashionBoxCases = async (req, res) => {
         }
 
         // Delete the image from Cloudinary using its public ID
-        await cloudinary.uploader.destroy(publicId);        
+        await cloudinary.uploader.destroy(publicId);
         // Find and delete the document based on the heading
-        const deletedCase = await Cases.findOneAndDelete({ heading :req.params.heading});
+        const deletedCase = await Cases.findOneAndDelete({ heading: req.params.heading });
 
         // Check if the document is found and deleted
         if (!deletedCase) {
