@@ -249,8 +249,10 @@ export const updateHrmAccord = async (req, res) => {
 
         const options = { new: true }; // This ensures that the updated document is returned
 
-        const updatedHrmAccord = await HrmAccordian.updateOne(filter, update, options);
+        await HrmAccordian.updateOne(filter, update, options);
 
+
+        const updatedHrmAccord = await HrmAccordian.findOne({});
         res.json(updatedHrmAccord);
     } catch (error) {
         res.status(500).json({ error: `${error}` });
@@ -268,7 +270,7 @@ export const getHrm1Accordian = async (req, res) => {
         if (!foundHrmAccordian) {
             return res.status(404).json({ message: 'HrmAccordian content not found' });
         }
-
+        
         // Respond with the found document
         res.json(foundHrmAccordian);
     } catch (error) {

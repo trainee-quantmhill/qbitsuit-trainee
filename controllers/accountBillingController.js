@@ -299,7 +299,7 @@ export const updateAccordian = async (req, res) => {
 
         const options = { new: true }; // This ensures that the updated document is returned
 
-        const updatedAccordion = await Accordian.updateOne(filter, update, options);
+        await Accordian.updateOne(filter, update, options);
         const accordian = await Accordian.findOne({});
         res.json(accordian);
     } catch (error) {
