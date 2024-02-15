@@ -52,14 +52,15 @@ export const updateLaravel = async (req, res) => {
                 }
 
                 // Update the image URL and Laravel details in the database
-                const laravel = await Laravel.updateOne({}, {
+                    await Laravel.updateOne({}, {
                     laravelUrl: result.url,
                     laravelHeading: req.body.laravelHeading || laravelHeading,
                     laravelSubheading: req.body.laravelSubheading || laravelSubheading,
                 }, { new: true });
 
+                const laraver = await Laravel.findOne({});
                 // Send a success response
-                res.json(laravel);
+                res.json(laraver);
             }).end(req.file.buffer);
         } else {
             // Update the Laravel details in the database without changing the image URL
