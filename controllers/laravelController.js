@@ -59,10 +59,7 @@ export const updateLaravel = async (req, res) => {
                 }, { new: true });
 
                 // Send a success response
-                res.json({
-                    message: 'File and Laravel details updated successfully',
-                    laravel,
-                });
+                res.json(laravel);
             }).end(req.file.buffer);
         } else {
             // Update the Laravel details in the database without changing the image URL
@@ -71,10 +68,7 @@ export const updateLaravel = async (req, res) => {
                 laravelSubheading: req.body.laravelSubheading || laravelSubheading,
             }, { new: true });
 
-            res.json({
-                message: 'Laravel details updated successfully',
-                laravel,
-            });
+            res.json(laravel);
         }
     } catch (error) {
         res.status(500).json({ error: `Error handling file upload: ${error.message}` });

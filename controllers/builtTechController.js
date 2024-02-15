@@ -49,10 +49,7 @@ export const updateBuiltTech = async (req, res) => {
         await Built.updateOne(filter, update, options);
 
         const builtTech = await Built.findOne({});
-        res.json({
-            message: "Update successfully",
-            builtTech,
-        });
+        res.json(builtTech);
     } catch (error) {
         res.status(500).json({ error: `${error}` });
     }
@@ -162,10 +159,7 @@ export const updateBuiltTechCards = async (req, res) => {
 
                 const builtCards = await Cards.findOne({});
                 // Send a success response
-                res.json({
-                    message: 'File and Laravel details updated successfully',
-                    builtCards,
-                });
+                res.json(builtCards);
             }).end(req.file.buffer);
         } else {
             // Update the Laravel details in the database without changing the image URL
@@ -176,10 +170,7 @@ export const updateBuiltTechCards = async (req, res) => {
 
             const builtCards = await Cards.findOne({});
                 // Send a success response
-                res.json({
-                    message: 'File and Laravel details updated successfully',
-                    builtCards,
-                });
+                res.json(builtCards);
         }
     } catch (error) {
         res.status(500).json({ error: `Error handling file upload: ${error.message}` });

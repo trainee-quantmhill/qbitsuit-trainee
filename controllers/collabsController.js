@@ -6,67 +6,7 @@ import Collabs from '../model/collabsModel.js'
 
 
 //update collab
-// export const updateCollabs = async (req, res) => {
-//     try {
-//         // Check if the image exists in the database
-//         const existingCollabs = await Collabs.findById(req.params.id);
 
-//         if (!existingCollabs) {
-//             return res.status(404).json({ success: false, message: 'collabobject not found.' });
-//         }
-//         if (req.file) {
-//             const checkPointUrl = existingCollabs.checkPointUrl;
-
-//             // Extract the public ID from the Cloudinary URL
-//             const publicId = extractPublicIdFromUrl(checkPointUrl);
-
-//             if (!publicId) {
-//                 return res.status(400).json({ error: 'Invalid Cloudinary URL' });
-//             }
-
-//             // Delete the image from Cloudinary using its public ID
-//             await cloudinary.uploader.destroy(publicId);
-
-//             // Upload the new image to Cloudinary
-//             cloudinary.uploader.upload_stream({ resource_type: 'auto' }, async (err, result) => {
-//                 if (err) {
-//                     return res.status(500).json({ error: 'Error updating to Cloudinary' });
-//                 }
-
-//                 // Update the image details in the database
-//                 const updatedCollabs = await Collabs.findByIdAndUpdate(req.params.id, {
-//                     collabHeading: req.body.collabHeading || existingCollabs.collabHeading,
-//                     collabParagraph: req.body.collabParagraph || existingCollabs.collabParagraph,
-//                     collabSubheading: req.body.collabSubheading || existingCollabs.collabSubheading,
-//                     checkPointHeading: req.body.checkPointHeading || existingCollabs.checkPointHeading,
-//                     checkPointParagraph: req.body.checkPointParagraph || existingCollabs.checkPointParagraph,
-//                     checkPointUrl: result.url
-//                 }, { new: true });
-
-//                 // Send a success response
-//                 res.json({
-//                     message: 'File upldated successfully',
-//                     cloudinaryResult: result
-//                 });
-//             }).end(req.file.buffer);
-//         }
-//         else {
-//             const updatedCollabs = await Collabs.findByIdAndUpdate(req.params.id, {
-//                 collabHeading: req.body.collabHeading || existingCollabs.collabHeading,
-//                 collabParagraph: req.body.collabParagraph || existingCollabs.collabParagraph,
-//                 collabSubheading: req.body.collabSubheading || existingCollabs.collabSubheading,
-//                 checkPointHeading: req.body.checkPointHeading || existingCollabs.checkPointHeading,
-//                 checkPointParagraph: req.body.checkPointParagraph || existingCollabs.checkPointParagraph,
-//             }, { new: true });
-//             res.json({
-//                 message: 'File updated successfully',
-//             });
-//         }
-//     } catch (error) {
-//         console.error('Error handling file upload:', error);
-//         res.status(500).json({ error: `Error handling file upload: ${error.message}` });
-//     }
-// };
 
 export const updateCollabs = async (req, res) => {
     try {
@@ -89,10 +29,7 @@ export const updateCollabs = async (req, res) => {
 
                 const Collab = await Collabs.findOne({});
                 // Send a success response
-                res.json({
-                    message: 'File and Collabs details updated successfully',
-                    Collab,
-                });
+                res.json(Collab);
             }).end(req.file.buffer);
         } else {
             // Update the Laravel details in the database without changing the image URL
@@ -106,10 +43,7 @@ export const updateCollabs = async (req, res) => {
             const Collab = await Collabs.findOne({});
 
             
-            res.json({
-                message: 'collab details updated successfully',
-                Collab
-            });
+            res.json(Collab);
         }
     } catch (error) {
         res.status(500).json({ error: `Error handling file upload: ${error.message}` });

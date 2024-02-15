@@ -74,10 +74,7 @@ export const updateModule = async (req, res) => {
         const updatedModule = await Module.updateOne(filter, update, options);
 
         const module = await Module.findOne({});
-        res.json({
-            message: "Update successfully",
-            module,
-        });
+        res.json(module);
     } catch (error) {
         res.status(500).json({ error: `${error}` });
     }
@@ -171,10 +168,7 @@ export const updateAcoount = async (req, res) => {
 
                 const account = await Account.findOne({});
                 // Send a success response
-                res.json({
-                    message: 'File and Laravel details updated successfully',
-                    account,
-                });
+                res.json(account);
             }).end(req.file.buffer);
         } else {
             // Update the Laravel details in the database without changing the image URL
@@ -184,10 +178,7 @@ export const updateAcoount = async (req, res) => {
             }, { new: true });
 
             const account = await Account.findOne({});
-            res.json({
-                message: 'account details updated successfully',
-                account,
-            });
+            res.json(account);
         }
     } catch (error) {
         res.status(500).json({ error: `Error handling file upload: ${error.message}` });
@@ -310,10 +301,7 @@ export const updateAccordian = async (req, res) => {
 
         const updatedAccordion = await Accordian.updateOne(filter, update, options);
         const accordian = await Accordian.findOne({});
-        res.json({
-            message: "Update successfully",
-            accordian,
-        });
+        res.json(accordian);
     } catch (error) {
         res.status(500).json({ error: `${error}` });
     }

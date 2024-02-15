@@ -70,10 +70,7 @@ export const updateHrm2 = async (req, res) => {
 
                 const hrm2 = await Hrm2.findOne({});
                 // Send a success response
-                res.json({
-                    message: 'File and hrm2 details updated successfully',
-                    hrm2,
-                });
+                res.json(hrm2);
             }).end(req.file.buffer);
         } else {
             // Update the Laravel details in the database without changing the image URL
@@ -84,10 +81,7 @@ export const updateHrm2 = async (req, res) => {
 
             const hrm2 = await Hrm2.findOne({});
             // Send a success response
-            res.json({
-                message: 'File and hrm2 details updated successfully',
-                hrm2,
-            });
+            res.json(hrm2);
         }
     } catch (error) {
         res.status(500).json({ error: `Error handling file upload: ${error.message}` });
@@ -216,10 +210,7 @@ export const updateHrm2Accord = async (req, res) => {
          await Hrm2Accordian.updateOne(filter, update, options);
 
         const updatedHrm2Accordian = await Accordian.findOne({});
-        res.json({
-            message: "Update successfully",
-            updatedHrm2Accordian,
-        });
+        res.json(updatedHrm2Accordian);
     } catch (error) {
         res.status(500).json({ error: `${error}` });
     }

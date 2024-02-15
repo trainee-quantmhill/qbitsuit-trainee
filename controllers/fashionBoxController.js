@@ -50,10 +50,7 @@ export const updateFashionBox = async (req, res) => {
 
 
         const fashionBox = await FashionBox.findOne({});
-        res.json({
-            message: "Update successfully",
-            fashionBox,
-        });
+        res.json(fashionBox);
     } catch (error) {
         res.status(500).json({ error: `${error}` });
     }
@@ -162,10 +159,7 @@ export const updateCases = async (req, res) => {
                 const cases = await Cases.findOne({});
                 
                 // Send a success response
-                res.json({
-                    message: 'File and cases details updated successfully',
-                    cases,
-                });
+                res.json(cases);
             }).end(req.file.buffer);
         } else {
             // Update the Laravel details in the database without changing the image URL
@@ -175,10 +169,7 @@ export const updateCases = async (req, res) => {
             }, { new: true });
 
             const cases = await Cases.findOne({});
-            res.json({
-                message: 'cases details updated successfully',
-                cases,
-            });
+            res.json(cases);
         }
     } catch (error) {
         res.status(500).json({ error: `Error handling file upload: ${error.message}` });

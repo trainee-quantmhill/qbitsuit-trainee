@@ -105,10 +105,7 @@ export const updateBanner = async (req, res) => {
             }, { new: true });
 
             const banner = await Banner.findOne({});
-            res.json({
-                message: 'File updated successfully',
-                banner
-            });
+            res.json(banner);
 
         } else {
             // Update the banner details in the database
@@ -119,10 +116,7 @@ export const updateBanner = async (req, res) => {
 
             
             const banner = await Banner.findOne({});
-            res.json({
-                message: 'File updated successfully',
-                banner
-            });
+            res.json(banner);
         }
 
     } catch (error) {
