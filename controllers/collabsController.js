@@ -87,10 +87,11 @@ export const updateCollabs = async (req, res) => {
                     checkPointUrl: result.url,
                 }, { new: true });
 
+                const Collab = await Collabs.findOne({});
                 // Send a success response
                 res.json({
                     message: 'File and Collabs details updated successfully',
-                    collab,
+                    Collab,
                 });
             }).end(req.file.buffer);
         } else {
@@ -102,10 +103,12 @@ export const updateCollabs = async (req, res) => {
                 checkPointHeading: req.body.checkPointHeading || checkPointHeading,
                 checkPointParagraph: req.body.checkPointParagraph || checkPointParagraph,
             }, { new: true });
+            const Collab = await Collabs.findOne({});
 
+            
             res.json({
                 message: 'collab details updated successfully',
-                collab,
+                Collab
             });
         }
     } catch (error) {

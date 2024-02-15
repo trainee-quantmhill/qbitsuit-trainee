@@ -30,6 +30,7 @@ export const uploadHrm = async (req, res) => {
                 hrmUrl: result.url
             });
 
+            
             // Save the image data to the database
             await newHrm.save();
 
@@ -112,12 +113,14 @@ export const updateHrm = async (req, res) => {
                 }
 
                 // Update the image URL and Hrm1 details in the database
-                const hrm1 = await Hrm1.updateOne({}, {
+                await Hrm1.updateOne({}, {
                     hrmUrl: result.url,
                     hrmHeading: req.body.hrmHeading || hrmHeading,
                     hrmSubheading: req.body.hrmSubheading || hrmSubheading,
                 }, { new: true });
 
+
+                const hrm1 = await Hrm1.findOne({});
                 // Send a success response
                 res.json({
                     message: 'File and hrm1 details updated successfully',
@@ -126,15 +129,17 @@ export const updateHrm = async (req, res) => {
             }).end(req.file.buffer);
         } else {
             // Update the Laravel details in the database without changing the image URL
-            const hrm1 = await Hrm1.updateOne({}, {
+             await Hrm1.updateOne({}, {
                 hrmHeading: req.body.hrmHeading || hrmHeading,
                 hrmSubheading: req.body.hrmSubheading || hrmSubheading,
             }, { new: true });
 
-            res.json({
-                message: 'account details updated successfully',
-                hrm1,
-            });
+            const hrm1 = await Hrm1.findOne({});
+                // Send a success response
+                res.json({
+                    message: 'File and hrm1 details updated successfully',
+                    hrm1,
+                });
         }
     } catch (error) {
         res.status(500).json({ error: `Error handling file upload: ${error.message}` });

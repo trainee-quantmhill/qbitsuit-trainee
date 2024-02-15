@@ -23,6 +23,7 @@ export const uploadModule =  async (req, res) => {
             moduleSubheading,
         });
 
+
         // Save the new module to the database
         await newModule.save();
 
@@ -72,9 +73,10 @@ export const updateModule = async (req, res) => {
 
         const updatedModule = await Module.updateOne(filter, update, options);
 
+        const module = await Module.findOne({});
         res.json({
             message: "Update successfully",
-            updatedModule,
+            module,
         });
     } catch (error) {
         res.status(500).json({ error: `${error}` });
@@ -161,12 +163,13 @@ export const updateAcoount = async (req, res) => {
                 }
 
                 // Update the image URL and Laravel details in the database
-                const account = await Account.updateOne({}, {
+                const ac = await Account.updateOne({}, {
                     accountImageUrl: result.url,
                     accountHeading: req.body.accountHeading || accountHeading,
                     accountSubheading: req.body.accountSubheading ||accountSubheading,
                 }, { new: true });
 
+                const account = await Account.findOne({});
                 // Send a success response
                 res.json({
                     message: 'File and Laravel details updated successfully',
@@ -175,11 +178,12 @@ export const updateAcoount = async (req, res) => {
             }).end(req.file.buffer);
         } else {
             // Update the Laravel details in the database without changing the image URL
-            const account = await Account.updateOne({}, {
+            const ac = await Account.updateOne({}, {
                 accountHeading: req.body.accountHeading || accountHeading,
                 accountSubheading: req.body.accountSubheading ||accountSubheading,
             }, { new: true });
 
+            const account = await Account.findOne({});
             res.json({
                 message: 'account details updated successfully',
                 account,
@@ -305,10 +309,10 @@ export const updateAccordian = async (req, res) => {
         const options = { new: true }; // This ensures that the updated document is returned
 
         const updatedAccordion = await Accordian.updateOne(filter, update, options);
-
+        const accordian = await Accordian.findOne({});
         res.json({
             message: "Update successfully",
-            updatedAccordion,
+            accordian,
         });
     } catch (error) {
         res.status(500).json({ error: `${error}` });

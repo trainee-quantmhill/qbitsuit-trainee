@@ -35,32 +35,6 @@ export const uploadBuiltTech =  async (req, res) => {
 };
 
 //update builtTech
-// export const updateBuiltTech= async (req, res) => {
-//     const itemId = req.params.id;
-
-//     try {
-//         // Find the item by ID
-//         const existingItem = await Built.findById(itemId);
-
-//         if (!existingItem) {
-//             return res.status(404).json({ message: 'Item not found' });
-//         }
-
-//         // Update item details using the provided fields from req.body
-//         existingItem.builtHeading = req.body.builtHeading || existingItem.builtHeading;
-//         existingItem.builtSubheading = req.body.builtSubheading || existingItem.builtSubheading;
-
-//         // Save the updated item
-//         const updatedItem = await existingItem.save();
-
-//         res.json(updatedItem);
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).json({ message: 'Internal Server Error' });
-//     }
-// };
-
-
 export const updateBuiltTech = async (req, res) => {
     try {
         // Assuming you have some criteria to uniquely identify the document to update
@@ -72,12 +46,12 @@ export const updateBuiltTech = async (req, res) => {
         };
 
         const options = { new: true }; // This ensures that the updated document is returned
-
         const updatedBuiltTech = await Built.updateOne(filter, update, options);
 
+        const builtTech = await Built.findOne({});
         res.json({
             message: "Update successfully",
-            updatedBuiltTech,
+            builtTech,
         });
     } catch (error) {
         res.status(500).json({ error: `${error}` });
@@ -170,73 +144,6 @@ export const uploadBuiltTechCards = async (req, res) => {
 
 
 //update Cases
-// export const updateBuiltTechCards = async (req, res) => {
-//     try {
-//         // Check if the image exists in the database
-        
-//         const updateBuiltTechCards = await Cards.findById(req.params.id);
-
-//         if (!updateBuiltTechCards) {
-//             return res.status(404).json({ success: false, message: 'builtTechobject not found.' });
-//         }
-//         if(req.file){ 
-//         const cardUrl = updateBuiltTechCards.cardUrl;
-
-//             // Extract the public ID from the Cloudinary URL
-//             const publicId = extractPublicIdFromUrl(cardUrl);
-    
-//             if (!publicId) {
-//                 return res.status(400).json({ error: 'Invalid Cloudinary URL' });
-//             }
-    
-//             // Delete the image from Cloudinary using its public ID
-//             await cloudinary.uploader.destroy(publicId);
-    
-//             console.log("image deleted ");
-        
-//         // Upload the new image to Cloudinary
-//         cloudinary.uploader.upload_stream({ resource_type: 'auto' }, async (err, result) => {
-//             if (err) {
-//                 console.error('Error uploading to Cloudinary:', err);
-//                 return res.status(500).json({ error: 'Error updating to Cloudinary' });
-//             }
-
-//             // Update the image details in the database
-//             const updatedImage = await Cards.findByIdAndUpdate(req.params.id, {
-//                 cardheading: req.body.cardheading || updateBuiltTechCards.cardheading,
-//                 cardParagraph: req.body.cardParagraph || updateBuiltTechCards.cardParagraph,
-                
-//                 cardUrl: result.url
-//             }, { new: true });
-
-            
-//             // Send a success response
-//             res.json({
-//                 message: 'File upldated successfully',
-//                 cloudinaryResult: result
-//             });
-//         }).end(req.file.buffer);
-//     } 
-//     else{
-//         const updatedImage = await Cards.findByIdAndUpdate(req.params.id, {
-//             cardheading: req.body.cardheading || updateBuiltTechCards.cardheading,
-//             cardParagraph: req.body.cardParagraph || updateBuiltTechCards.cardParagraph,
-            
-//         }, { new: true });
-//         res.json({
-//             message: 'File upldated successfully',
-//         });
-//     }
-// }catch (error) {
-//         console.error('Error handling file upload:', error);
-//         res.status(500).json({ error: `Error handling file upload: ${error.message}` });
-//     }
-// };
-
-
-
-
-
 export const updateBuiltTechCards = async (req, res) => {
     try {
         if (req.file) {
@@ -247,16 +154,17 @@ export const updateBuiltTechCards = async (req, res) => {
                 }
 
                 // Update the image URL and Laravel details in the database
-                const cards = await Cards.updateOne({}, {
+                await Cards.updateOne({}, {
                     cardUrl: result.url,
                     cardheading: req.body.cardheading || cardheading,
                     cardParagraph: req.body.cardParagraph ||cardParagraph,
                 }, { new: true });
 
+                const builtCards = await Cards.findOne({});
                 // Send a success response
                 res.json({
                     message: 'File and Laravel details updated successfully',
-                    cards,
+                    builtCards,
                 });
             }).end(req.file.buffer);
         } else {
@@ -266,18 +174,17 @@ export const updateBuiltTechCards = async (req, res) => {
                 cardParagraph: req.body.cardParagraph ||cardParagraph,
             }, { new: true });
 
-            res.json({
-                message: 'account details updated successfully',
-                cards,
-            });
+            const builtCards = await Cards.findOne({});
+                // Send a success response
+                res.json({
+                    message: 'File and Laravel details updated successfully',
+                    builtCards,
+                });
         }
     } catch (error) {
         res.status(500).json({ error: `Error handling file upload: ${error.message}` });
     }
 };
-
-
-
 
 
 // Function to extract public ID from Cloudinary URL
@@ -312,7 +219,7 @@ export const getBuiltTechCards= async (req, res) => {
     }
 };
 
-
+//delete builtTech Cards
 export const deleteBuiltTechCards = async (req, res) => {
     try {
         const existingCardObject = await Cards.findOne({ cardheading: req.params.cardheading });

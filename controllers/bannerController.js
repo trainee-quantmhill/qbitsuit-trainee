@@ -96,13 +96,15 @@ export const updateBanner = async (req, res) => {
             const uploadedUrls = await Promise.all(uploadPromises);
             
             // Update the imageUrls in the database
-            const banner = await Banner.findOneAndUpdate({}, { imageUrls: uploadedUrls }, { new: true });
+             await Banner.findOneAndUpdate({}, { imageUrls: uploadedUrls }, { new: true });
 
             //update  the details of banner in the database 
             const updatedImage = await Banner.updateOne({}, {
                 bannerHeading: req.body.bannerHeading || bannerHeading,
                 bannerParagraph: req.body.bannerParagraph || bannerParagraph,
             }, { new: true });
+
+            const banner = await Banner.findOne({});
             res.json({
                 message: 'File updated successfully',
                 banner
@@ -114,8 +116,12 @@ export const updateBanner = async (req, res) => {
                 bannerHeading: req.body.bannerHeading || existBannerObject.bannerHeading,
                 bannerParagraph: req.body.bannerParagraph || existBannerObject.bannerParagraph,
             }, { new: true });
+
+            
+            const banner = await Banner.findOne({});
             res.json({
                 message: 'File updated successfully',
+                banner
             });
         }
 

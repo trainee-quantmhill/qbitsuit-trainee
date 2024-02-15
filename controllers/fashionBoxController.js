@@ -47,11 +47,13 @@ export const updateFashionBox = async (req, res) => {
 
         const options = { new: true }; // This ensures that the updated document is returned
 
-        const updated = await FashionBox.updateOne(filter, update, options);
+         await FashionBox.updateOne(filter, update, options);
 
+
+        const fashionBox = await FashionBox.findOne({});
         res.json({
             message: "Update successfully",
-            updated,
+            fashionBox,
         });
     } catch (error) {
         res.status(500).json({ error: `${error}` });
@@ -152,12 +154,14 @@ export const updateCases = async (req, res) => {
                 }
 
                 // Update the image URL and Laravel details in the database
-                const cases = await Cases.updateOne({}, {
+                 await Cases.updateOne({}, {
                     fashionBoxUrl: result.url,
                     heading: req.body.heading || heading,
                     paragraph: req.body.paragraph || paragraph,
                 }, { new: true });
 
+                const cases = await Cases.findOne({});
+                
                 // Send a success response
                 res.json({
                     message: 'File and cases details updated successfully',
@@ -166,11 +170,12 @@ export const updateCases = async (req, res) => {
             }).end(req.file.buffer);
         } else {
             // Update the Laravel details in the database without changing the image URL
-            const cases = await Cases.updateOne({}, {
+             await Cases.updateOne({}, {
                 heading: req.body.heading || heading,
                 paragraph: req.body.paragraph || paragraph,
             }, { new: true });
 
+            const cases = await Cases.findOne({});
             res.json({
                 message: 'cases details updated successfully',
                 cases,

@@ -1,5 +1,6 @@
 import cloudinary from '../config/cloudinaryConfig.js';
 import upload from '../config/multerConfig.js';
+import { Accordian } from '../model/AccountBillingModel.js';
 
 //components
 import { Hrm2, Hrm2Accordian } from "../model/hrm2Model.js";
@@ -59,12 +60,15 @@ export const updateHrm2 = async (req, res) => {
                 }
 
                 // Update the image URL and Laravel details in the database
-                const hrm2 = await Hrm2.updateOne({}, {
+                 await Hrm2.updateOne({}, {
                     hrm2Url: result.url,
                     hrm2Heading: req.body.hrm2Heading || hrm2Heading,
                     hrm2Subheading: req.body.hrm2Subheading || hrm2Subheading,
                 }, { new: true });
 
+
+
+                const hrm2 = await Hrm2.findOne({});
                 // Send a success response
                 res.json({
                     message: 'File and hrm2 details updated successfully',
@@ -73,13 +77,15 @@ export const updateHrm2 = async (req, res) => {
             }).end(req.file.buffer);
         } else {
             // Update the Laravel details in the database without changing the image URL
-            const hrm2 = await Hrm2.updateOne({}, {
+             await Hrm2.updateOne({}, {
                 hrm2Heading: req.body.hrm2Heading || hrm2Heading,
                 hrm2Subheading: req.body.hrm2Subheading || hrm2Subheading,
             }, { new: true });
 
+            const hrm2 = await Hrm2.findOne({});
+            // Send a success response
             res.json({
-                message: 'hrm2 details updated successfully',
+                message: 'File and hrm2 details updated successfully',
                 hrm2,
             });
         }
@@ -207,8 +213,9 @@ export const updateHrm2Accord = async (req, res) => {
 
         const options = { new: true }; // This ensures that the updated document is returned
 
-        const updatedHrm2Accordian = await Hrm2Accordian.updateOne(filter, update, options);
+         await Hrm2Accordian.updateOne(filter, update, options);
 
+        const updatedHrm2Accordian = await Accordian.findOne({});
         res.json({
             message: "Update successfully",
             updatedHrm2Accordian,
