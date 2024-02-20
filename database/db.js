@@ -22,13 +22,16 @@ const Connection = async () => {
         // let urlExists = false;
 
         // for (const specificCollectionName of collectionNames) {
-        //     const documentWithUrl = await db.collection(specificCollectionName).findOne({cardUrl: url });
+        //     const documentWithUrl = await db.collection(specificCollectionName).findOne({});
 
         //     if (documentWithUrl) {
+        //         console.log(documentWithUrl)
         //         console.log("exist");
         //         urlExists = true;
         //         break;
         //     }
+        //     else
+        //         console.log("not exist");
         // }
         
 

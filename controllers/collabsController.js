@@ -40,9 +40,9 @@ export const updateCollabs = async (req, res) => {
                 checkPointHeading: req.body.checkPointHeading || checkPointHeading,
                 checkPointParagraph: req.body.checkPointParagraph || checkPointParagraph,
             }, { new: true });
-            const Collab = await Collabs.findOne({});
 
-            
+
+            const Collab = await Collabs.findOne({});            
             res.json(Collab);
         }
     } catch (error) {

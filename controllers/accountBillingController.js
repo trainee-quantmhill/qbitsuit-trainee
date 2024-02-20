@@ -310,22 +310,33 @@ export const updateAccordian = async (req, res) => {
 
 export const getAccordian = async (req, res) => {
     try {
-  
       // Find the module based on the moduleHeading
-      const foundAccordian = await Accordian.findOne({} );
+      const foundAccordian = await Accordian.findOne({});
   
       // Check if the module is found
       if (!foundAccordian) {
         return res.status(404).json({ message: 'Module not found' });
       }
   
-      // Respond with the found module
-      res.json(foundAccordian);
+      // Create an array with the desired properties
+      const accordianArray = [
+        foundAccordian._id,
+        foundAccordian.accordianHeading,
+        foundAccordian.accordianParagraph
+      ];
+
+      // Log the array
+      console.log(accordianArray);
+
+      // Respond with the found properties in an array
+      res.json(accordianArray);
     } catch (error) {
       console.error('Error fetching module:', error);
       res.status(500).json({ error: `Error fetching module: ${error.message}` });
     }
-  };
+};
+
+
 
 
 //delete Accordian
