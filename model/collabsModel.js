@@ -13,7 +13,11 @@ const collabsSchema = new mongoose.Schema({
   collabSubheading: {
     type: String,
     required: true,
-  },
+  }
+});
+
+
+const collabCheckPointSchema = new mongoose.Schema({
   checkPointHeading: {
     type: String,
     required: true,
@@ -29,5 +33,6 @@ const collabsSchema = new mongoose.Schema({
 });
 
 const Collabs = mongoose.model('collabDetails', collabsSchema);
+const CheckPoint = mongoose.model('collabCheckPointDetails', collabCheckPointSchema);
 
-export default Collabs;
+export  {Collabs,CheckPoint};

@@ -227,8 +227,14 @@ export const getHrm2Accordian = async (req, res) => {
             return res.status(404).json({ message: 'Hrm2 Accordian content not found' });
         }
 
+
+        const hrm2Array = [
+            foundHrm2Accordian._id,
+            foundHrm2Accordian.accordian_2Heading,
+            foundHrm2Accordian.accordian_2Paragraph
+        ]
         // Respond with the found document
-        res.json(foundHrm2Accordian);
+        res.json(hrm2Array);
     } catch (error) {
         console.error('Error fetching Hrm2 Accordian content:', error);
         res.status(500).json({ error: `Error fetching Hrm2 Accordian content: ${error.message}` });

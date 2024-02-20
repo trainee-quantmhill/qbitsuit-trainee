@@ -139,6 +139,10 @@ export const updateHrm = async (req, res) => {
         res.status(500).json({ error: `Error handling file upload: ${error.message}` });
     }
 };
+
+
+
+
 const extractPublicIdFromUrl = (url) => {
     const matches = url.match(/\/upload\/v\d+\/(.+?)\./);
 
@@ -162,6 +166,7 @@ export const getHrm1 = async (req, res) => {
             return res.status(404).json({ message: 'Hrm1 content not found' });
         }
 
+        console.log(foundHrm1);
         // Respond with the found document
         res.json(foundHrm1);
     } catch (error) {
@@ -262,7 +267,6 @@ export const updateHrmAccord = async (req, res) => {
 //get hrm1 Accordian
 export const getHrm1Accordian = async (req, res) => {
     try {
-
         // Find the document based on the 
         const foundHrmAccordian = await HrmAccordian.findOne({});
 
@@ -271,8 +275,13 @@ export const getHrm1Accordian = async (req, res) => {
             return res.status(404).json({ message: 'HrmAccordian content not found' });
         }
         
+        const hrm1Array = [
+            foundHrmAccordian._id,
+            foundHrmAccordian.accordian_1Heading,
+            foundHrmAccordian.accordian_1Paragraph
+        ]
         // Respond with the found document
-        res.json(foundHrmAccordian);
+        res.json(hrm1Array);
     } catch (error) {
         console.error('Error fetching HrmAccordian content:', error);
         res.status(500).json({ error: `Error fetching HrmAccordian content: ${error.message}` });
