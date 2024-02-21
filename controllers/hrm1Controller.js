@@ -46,61 +46,7 @@ export const uploadHrm = async (req, res) => {
 };
 
 //Hrm  update
-// export const updateHrm = async (req, res) => {
-//     try {
-//         // Check if the image exists in the database
-//         const existhrmObject = await Hrm1.findById(req.params.id);
 
-//         if (!existhrmObject) {
-//             return res.status(404).json({ success: false, message: 'Image not found.' });
-//         }
-//         if (req.file) {
-//             const hrmUrl = existhrmObject.hrmUrl;
-
-//             // Extract the public ID from the Cloudinary URL
-//             const publicId = extractPublicIdFromUrl(hrmUrl);
-
-//             if (!publicId) {
-//                 return res.status(400).json({ error: 'Invalid Cloudinary URL' });
-//             }
-
-//             // Delete the image from Cloudinary using its public ID
-//             await cloudinary.uploader.destroy(publicId);
-
-
-//             // Upload the new image to Cloudinary
-//             cloudinary.uploader.upload_stream({ resource_type: 'auto' }, async (err, result) => {
-//                 if (err) {
-//                     console.error('Error uploading to Cloudinary:', err);
-//                     return res.status(500).json({ error: 'Error updating to Cloudinary' });
-//                 }
-
-//                 // Update the image details in the database
-//                 const updatedImage = await Hrm1.findByIdAndUpdate(req.params.id, {
-//                     hrmHeading: req.body.hrmHeading || existhrmObject.hrmHeading,
-//                     hrmSubheading: req.body.hrmSubheading || existhrmObject.hrmSubheading,
-//                     hrmUrl: result.url
-//                 }, { new: true });
-
-//                 // Send a success response
-//                 res.json({
-//                     message: 'File upldated successfully',
-//                 });
-//             }).end(req.file.buffer);
-//         }
-//         else {
-//             const updatedImage = await Hrm1.findByIdAndUpdate(req.params.id, {
-//                 hrmHeading: req.body.hrmHeading || existhrmObject.hrmHeading,
-//                 hrmSubheading: req.body.hrmSubheading || existhrmObject.hrmSubheading,
-//             }, { new: true });
-//             res.json({
-//                 message: 'File updated successfully',
-//             });
-//         }
-//     } catch (error) {
-//         res.status(500).json({ error: `Error handling file upload: ${error.message}` });
-//     }
-// };
 
 
 export const updateHrm = async (req, res) => {

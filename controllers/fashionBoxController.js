@@ -187,8 +187,14 @@ export const getFashionBoxCases = async (req, res) => {
             return res.status(404).json({ message: 'Case not found' });
         }
 
+        const fashionCasesArray = [
+            foundCase._id,
+            foundCase.heading,
+            foundCase.paragraph,
+            foundCase.fashionBoxUrl
+        ];
         // Respond with the found document
-        res.json(foundCase);
+        res.json(fashionCasesArray);
     } catch (error) {
         console.error('Error fetching case:', error);
         res.status(500).json({ error: `Error fetching case: ${error.message}` });

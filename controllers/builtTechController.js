@@ -191,24 +191,32 @@ const extractPublicIdFromUrl = (url) => {
 
 
 //get builtTech Cards
-export const getBuiltTechCards= async (req, res) => {
-    try {
 
-        // Find the document based on the 
-        const foundCard = await Cards.findOne({  });
+export const getBuiltTechCards = async (req, res) => {
+    try {
+        // Find the document based on some criteria (I'll assume the first document)
+        const foundCard = await Cards.findOne({});
 
         // Check if the document is found
         if (!foundCard) {
             return res.status(404).json({ message: 'Card not found' });
         }
 
+        const foundCardArray = [
+            foundCard._id,
+            foundCard.cardheading,
+            foundCard.cardParagraph,
+            foundCard.cardUrl
+        ];
+
         // Respond with the found document
-        res.json(foundCard);
+        res.json(foundCardArray);
     } catch (error) {
         console.error('Error fetching card:', error);
         res.status(500).json({ error: `Error fetching card: ${error.message}` });
     }
 };
+
 
 //delete builtTech Cards
 export const deleteBuiltTechCards = async (req, res) => {
